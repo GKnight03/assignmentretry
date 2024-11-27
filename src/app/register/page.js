@@ -34,14 +34,22 @@ export default function RegisterPage() {
     setSuccess(false);
 
     // Use relative API path instead of localhost URL
-    const apiUrl = `/api/newRegister?email=${email}&pass=${pass}&address=${address}`;
+    const apiUrl = '/api/newRegister';
+    const bodyData = { email, pass, address };
 
-    runDBCallAsync(apiUrl);
+    runDBCallAsync(apiUrl, bodyData);
   };
 
-  async function runDBCallAsync(url) {
+  async function runDBCallAsync(url, bodyData) {
     try {
-      const res = await fetch(url);
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bodyData),
+      });
+
       const data = await res.json();
 
       if (data.data === "valid") {
@@ -136,6 +144,7 @@ export default function RegisterPage() {
               bgcolor: '#00653A',
               ':hover': { bgcolor: '#004225' },
             }}
+            disabled={loading}
           >
             {loading ? 'Registering...' : 'Register'}
           </Button>
