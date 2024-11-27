@@ -1,38 +1,44 @@
-export async function POST(req, res) {
-    // Log to console that we're in the API route.
-    console.log("In the newRegister API route");
+import { MongoClient } from 'mongodb';
+
+export async function GET(req, res) {
+  // Log for debugging purposes
+  console.log("in the api page");
+
+  // Get the values that were sent across to us
+  const { searchParams } = new URL(req.url);
+  const email = searchParams.get('email');
+  const pass = searchParams.get('pass');
+  const address = searchParams.get('address'); // Corrected field name
+
+  // Log the values for debugging
+  console.log(email);
+  console.log(pass);
+  console.log(address);
+
+  // Connect to MongoDB using DB_ADDRESS
+  const client = new MongoClient(process.env.DB_ADDRESS);
   
-    try {
-      // Parse the request body to get the JSON data
-      const { email, pass, address } = await req.json();
-  
-      // Log the received data
-      console.log("Received email:", email);
-      console.log("Received pass:", pass);
-      console.log("Received address:", address);
-  
-      // Simple validation to check if all fields are present
-      if (!email || !pass || !address) {
-        return new Response(
-          JSON.stringify({ data: "missing_fields", message: "Please provide all fields." }),
-          { status: 400 }
-        );
-      }
-  
-      // Simulate database call (replace with actual logic)
-      // For example: await db.users.create({ email, pass, address });
-  
-      // If successful, send a response
-      return new Response(
-        JSON.stringify({ data: "valid", message: "Registration successful." }),
-        { status: 200 }
-      );
-    } catch (error) {
-      console.error("Error during registration:", error);
-      return new Response(
-        JSON.stringify({ data: "error", message: "An error occurred. Please try again later." }),
-        { status: 500 }
-      );
+  try {
+    await client.connect();
+    const db = client.db('app');  // Ensure your DB name is correct
+    const usersCollection = db.collection('login');
+    
+    // Check if email already exists
+    const existingUser = await usersCollection.findOne({ email });
+    
+    if (existingUser) {
+      return new Response(JSON.stringify({ data: 'Email already in use' }), { status: 400 });
     }
+
+    // Insert the new user into the collection
+    await usersCollection.insertOne({ email, pass, address });
+    
+    // Return a success response
+    return new Response(JSON.stringify({ data: 'valid' }), { status: 200 });
+  } catch (err) {
+    console.error('Database error:', err);
+    return new Response(JSON.stringify({ data: 'Error connecting to the database' }), { status: 500 });
+  } finally {
+    await client.close();
   }
-  
+}

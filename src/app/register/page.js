@@ -25,6 +25,12 @@ export default function RegisterPage() {
     let pass = data.get('pass');
     let address = data.get('address');
 
+    // Client-side validation for required fields
+    if (!email || !pass || !address) {
+      setError("Please fill in all fields.");
+      return;
+    }
+
     console.log("Sent email:" + email);
     console.log("Sent pass:" + pass);
     console.log("Sent address:" + address);
@@ -52,8 +58,10 @@ export default function RegisterPage() {
 
       const data = await res.json();
 
+      // Checking the response from the server
       if (data.data === "valid") {
         setSuccess(true);
+        setError('');  // Clear error on success
       } else {
         setError("Registration failed. Please try again.");
       }
