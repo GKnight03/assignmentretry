@@ -22,16 +22,30 @@ export default function ManagerDashboard() {
       });
   }, []);
 
-  if (!orders) return <p>Loading orders</p>;
+  if (!orders) return <p>Loading orders...</p>;
 
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" sx={{ bgcolor: '#1A1A1A' }}>
         <Toolbar>
-          <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            sx={{ mr: 2 }}
+          >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontFamily: 'Creepster, sans-serif', color: '#ff0000' }}>
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{
+              flexGrow: 1,
+              fontFamily: 'Creepster, sans-serif',
+              color: '#ff0000',
+            }}
+          >
             Evil Krispy Kreme - Manager Dashboard
           </Typography>
           <Button color="inherit">Home</Button>
@@ -39,13 +53,35 @@ export default function ManagerDashboard() {
         </Toolbar>
       </AppBar>
 
-      <Box component="section" sx={{ p: 3, bgcolor: '#2c2c2c', border: '2px dashed #ff0000', borderRadius: 2 }}>
-        <Typography variant="h5" color="#ff0000" sx={{ textAlign: 'center', mb: 2, fontFamily: 'Creepster, sans-serif' }}>
+      <Box
+        component="section"
+        sx={{
+          p: 3,
+          bgcolor: '#2c2c2c',
+          border: '2px dashed #ff0000',
+          borderRadius: 2,
+        }}
+      >
+        <Typography
+          variant="h5"
+          color="#ff0000"
+          sx={{
+            textAlign: 'center',
+            mb: 2,
+            fontFamily: 'Creepster, sans-serif',
+          }}
+        >
           Orders List - The Dark Order
         </Typography>
 
         <Box sx={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', color: '#fff', fontFamily: 'Creepster, sans-serif' }}>
+          <table
+            style={{
+              width: '100%',
+              color: '#fff',
+              fontFamily: 'Creepster, sans-serif',
+            }}
+          >
             <thead>
               <tr>
                 <th style={{ color: '#ff0000' }}>Order ID</th>
