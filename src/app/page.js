@@ -45,6 +45,28 @@ export default function Home() {
             Read our docs
           </a>
         </div>
+
+        {/* New links */}
+        <div className={styles.ctas}>
+          <a
+            href="/login"
+            className={styles.primary}
+          >
+            Login
+          </a>
+          <a
+            href="/register"
+            className={styles.primary}
+          >
+            Register
+          </a>
+          <a
+            href="/smallapp"
+            className={styles.primary}
+          >
+            Small App
+          </a>
+        </div>
       </main>
       <footer className={styles.footer}>
         <a
