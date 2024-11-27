@@ -22,7 +22,10 @@ export default function KrispyKremeApp() {
   // Fetch products when the Dashboard is displayed
   useEffect(() => {
     if (showDash) {
-      fetch('http://localhost:3000/api/getProducts')
+      const dbAddress = process.env.DB_ADDRESS; // Get the DB address from the environment variable
+      const apiUrl = `${dbAddress}/api/getProducts`;  // Adjust URL based on how your API is structured
+
+      fetch(apiUrl)
         .then((res) => res.json())
         .then((data) => {
           setData(data);
@@ -37,7 +40,10 @@ export default function KrispyKremeApp() {
   function putInCart(pname) {
     console.log("Adding to cart: " + pname);
 
-    fetch("http://localhost:3000/api/putInCart?pname=" + pname)
+    const dbAddress = process.env.REACT_APP_DB_ADDRESS; // Get the DB address from the environment variable
+    const apiUrl = `${dbAddress}/api/putInCart?pname=${pname}`;
+
+    fetch(apiUrl)
       .then((response) => response.json())
       .then((data) => {
         console.log('Item added to cart:', data);
