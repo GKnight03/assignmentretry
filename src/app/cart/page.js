@@ -2,32 +2,12 @@ import React, { useEffect, useState } from 'react';
 
 function CartPage() {
   const [cartItems, setCartItems] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  // Fetch items from the API
   useEffect(() => {
-    async function fetchCartItems() {
-      try {
-        const response = await fetch('/api/getCartItems'); // Adjust API endpoint
-        if (response.ok) {
-          const data = await response.json();
-          setCartItems(data);
-        } else {
-          console.error('Failed to fetch cart items');
-        }
-      } catch (error) {
-        console.error('Error fetching cart items:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchCartItems();
+    fetch('/api/getCartItems')
+      .then((res) => res.json())
+      .then((data) => setCartItems(data));
   }, []);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div>
