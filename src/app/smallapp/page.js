@@ -21,43 +21,27 @@ export default function KrispyKremeApp() {
   // Fetch products when the Dashboard is displayed
   useEffect(() => {
     if (showDash) {
-      const dbAddress = process.env.NEXT_PUBLIC_DB_ADDRESS; // Ensure the env variable is public-facing
-      if (!dbAddress) {
-        setError('Database address is not set. Please check your environment variables.');
-        return;
-      }
-
-      const apiUrl = `${dbAddress}/api/getProducts`;
-      console.log('Fetching products from:', apiUrl); // Log the API URL
-
-      fetch(apiUrl)
-        .then((res) => {
-          if (!res.ok) throw new Error('Network response was not ok');
-          return res.json();
-        })
-        .then((data) => {
-          setData(data);
-          setError('');
-        })
-        .catch((error) => {
-          console.error('Error fetching products:', error);
-          setError('Failed to load products. Please try again later.');
-        });
+      fetchProducts();
     }
   }, [showDash]);
+
+  async function fetchProducts() {
+    try {
+      const response = await fetch('/api/getProducts'); // Call your API route
+      if (!response.ok) throw new Error('Failed to fetch products');
+      const result = await response.json();
+      setData(result);
+      setError('');
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      setError('Failed to load products. Please try again later.');
+    }
+  }
 
   function putInCart(pname) {
     console.log('Adding to cart: ' + pname);
 
-    const dbAddress = process.env.NEXT_PUBLIC_DB_ADDRESS;
-    if (!dbAddress) {
-      setError('Database address is not set. Please check your environment variables.');
-      return;
-    }
-
-    const apiUrl = `${dbAddress}/api/putInCart?pname=${pname}`;
-
-    fetch(apiUrl)
+    fetch(`/api/putInCart?pname=${pname}`)
       .then((response) => response.json())
       .then((data) => {
         console.log('Item added to cart:', data);
