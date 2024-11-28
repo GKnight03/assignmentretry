@@ -6,7 +6,7 @@ export async function GET(req, res) {
   const { MongoClient } = require('mongodb');
 
   // Use the MongoDB Cloud connection string (stored in an environment variable)
-  const url = process.env.MONGO_URL; // Ensure this is set in your environment
+  const url = process.env.DB_ADDRESS; 
 
   // Create the MongoClient instance
   const client = new MongoClient(url);
