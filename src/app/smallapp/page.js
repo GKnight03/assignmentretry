@@ -12,36 +12,49 @@ import { useState, useEffect } from 'react';
 import LoginPage from './LoginPage'; // Import the LoginPage component
 
 export default function KrispyKremeApp() {
-  // State for controlling what page to show
   const [showLogin, setShowLogin] = useState(false);
   const [showDash, setShowDash] = useState(false);
   const [showFirstPage, setShowFirstPage] = useState(true);
-
-  // State for storing product data
   const [data, setData] = useState(null);
+  const [error, setError] = useState('');
 
   // Fetch products when the Dashboard is displayed
   useEffect(() => {
     if (showDash) {
-      const dbAddress = process.env.DB_ADDRESS; // Get the DB address from the environment variable
-      const apiUrl = `${dbAddress}/api/getProducts`; // Adjust URL based on how your API is structured
+      const dbAddress = process.env.NEXT_PUBLIC_DB_ADDRESS; // Ensure the env variable is public-facing
+      if (!dbAddress) {
+        setError('Database address is not set. Please check your environment variables.');
+        return;
+      }
+
+      const apiUrl = `${dbAddress}/api/getProducts`;
+      console.log('Fetching products from:', apiUrl); // Log the API URL
 
       fetch(apiUrl)
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) throw new Error('Network response was not ok');
+          return res.json();
+        })
         .then((data) => {
           setData(data);
+          setError('');
         })
         .catch((error) => {
           console.error('Error fetching products:', error);
+          setError('Failed to load products. Please try again later.');
         });
     }
   }, [showDash]);
 
-  // Function for adding items to the shopping cart
   function putInCart(pname) {
     console.log('Adding to cart: ' + pname);
 
-    const dbAddress = process.env.REACT_APP_DB_ADDRESS; // Get the DB address from the environment variable
+    const dbAddress = process.env.NEXT_PUBLIC_DB_ADDRESS;
+    if (!dbAddress) {
+      setError('Database address is not set. Please check your environment variables.');
+      return;
+    }
+
     const apiUrl = `${dbAddress}/api/putInCart?pname=${pname}`;
 
     fetch(apiUrl)
@@ -51,10 +64,10 @@ export default function KrispyKremeApp() {
       })
       .catch((error) => {
         console.error('Error adding to cart:', error);
+        setError('Failed to add item to cart.');
       });
   }
 
-  // Functions to show different pages
   function runShowLogin() {
     setShowFirstPage(false);
     setShowLogin(true);
@@ -73,7 +86,6 @@ export default function KrispyKremeApp() {
     setShowDash(false);
   }
 
-  // Handle successful login
   function handleLoginSuccess() {
     setShowLogin(false);
     setShowDash(true); // Redirect to dashboard after successful login
@@ -119,21 +131,19 @@ export default function KrispyKremeApp() {
         </Box>
       )}
 
-      {showLogin && <LoginPage onLoginSuccess={handleLoginSuccess} />} {/* Pass the success handler */}
+      {showLogin && <LoginPage onLoginSuccess={handleLoginSuccess} />}
 
       {showDash && (
-        <Box
-          component="section"
-          sx={{
-            p: 3,
-            bgcolor: '#FFF8E6',
-            border: '2px dashed #00653A',
-          }}
-        >
+        <Box component="section" sx={{ p: 3, bgcolor: '#FFF8E6', border: '2px dashed #00653A' }}>
           <Typography variant="h5" color="#00653A">
             Donut Time
           </Typography>
-          {data ? (
+
+          {error ? (
+            <Typography variant="body2" color="red">
+              {error}
+            </Typography>
+          ) : data ? (
             data.map((item, i) => (
               <Box
                 key={i}
@@ -150,11 +160,7 @@ export default function KrispyKremeApp() {
                 <Typography variant="body2">Price: ${item.price}</Typography>
                 <Button
                   variant="contained"
-                  sx={{
-                    bgcolor: '#00653A',
-                    color: '#FFFFFF',
-                    ':hover': { bgcolor: '#004225' },
-                  }}
+                  sx={{ bgcolor: '#00653A', color: '#FFFFFF', ':hover': { bgcolor: '#004225' } }}
                   onClick={() => putInCart(item.pname)}
                 >
                   Add to Cart
