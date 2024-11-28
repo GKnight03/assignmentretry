@@ -1,3 +1,7 @@
+// src/app/cart/page.js
+
+'use client'; // Add this at the top of the file
+
 import React, { useEffect, useState } from 'react';
 
 function CartPage() {
