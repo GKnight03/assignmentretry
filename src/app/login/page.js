@@ -1,7 +1,9 @@
+import React, { useState } from 'react'; // Import React and useState
+
 export default function LoginPage({ onLoginSuccess }) {
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState('');
-  const [success, setSuccess] = React.useState(false);
+  const [loading, setLoading] = useState(false);  // useState is now destructured from React
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
