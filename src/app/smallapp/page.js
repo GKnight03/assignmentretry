@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
@@ -9,6 +9,7 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState, useEffect } from 'react';
+import LoginPage from './LoginPage'; // Import the LoginPage component
 
 export default function KrispyKremeApp() {
   // State for controlling what page to show
@@ -23,7 +24,7 @@ export default function KrispyKremeApp() {
   useEffect(() => {
     if (showDash) {
       const dbAddress = process.env.DB_ADDRESS; // Get the DB address from the environment variable
-      const apiUrl = `${dbAddress}/api/getProducts`;  // Adjust URL based on how your API is structured
+      const apiUrl = `${dbAddress}/api/getProducts`; // Adjust URL based on how your API is structured
 
       fetch(apiUrl)
         .then((res) => res.json())
@@ -38,7 +39,7 @@ export default function KrispyKremeApp() {
 
   // Function for adding items to the shopping cart
   function putInCart(pname) {
-    console.log("Adding to cart: " + pname);
+    console.log('Adding to cart: ' + pname);
 
     const dbAddress = process.env.REACT_APP_DB_ADDRESS; // Get the DB address from the environment variable
     const apiUrl = `${dbAddress}/api/putInCart?pname=${pname}`;
@@ -72,28 +73,31 @@ export default function KrispyKremeApp() {
     setShowDash(false);
   }
 
-  // Display a loading message if data hasn't been fetched yet
-  if (!data && showDash) return <p>Loading...</p>;
+  // Handle successful login
+  function handleLoginSuccess() {
+    setShowLogin(false);
+    setShowDash(true); // Redirect to dashboard after successful login
+  }
 
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" sx={{ bgcolor: '#D62300' }}>
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-          >
+          <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontFamily: 'KrispyKremeFont, sans-serif' }}>
             Krispy Kreme Dashboard
           </Typography>
-          <Button color="inherit" onClick={runShowFirst}>Home</Button>
-          <Button color="inherit" onClick={runShowLogin}>Sign In</Button>
-          <Button color="inherit" onClick={runShowDash}>Menu</Button>
+          <Button color="inherit" onClick={runShowFirst}>
+            Home
+          </Button>
+          <Button color="inherit" onClick={runShowLogin}>
+            Sign In
+          </Button>
+          <Button color="inherit" onClick={runShowDash}>
+            Menu
+          </Button>
         </Toolbar>
       </AppBar>
 
@@ -111,31 +115,11 @@ export default function KrispyKremeApp() {
           <Typography variant="h4" color="#00653A">
             Back At It Again at Krispy Kreme!
           </Typography>
-          <Typography>
-            Enjoy the Kreme of the crop!
-          </Typography>
+          <Typography>Enjoy the Kreme of the crop!</Typography>
         </Box>
       )}
 
-      {showLogin && (
-        <Box
-          component="section"
-          sx={{
-            p: 3,
-            textAlign: 'center',
-            bgcolor: '#FFF8E6',
-            border: '2px dashed #D62300',
-            fontFamily: 'KrispyKremeFont, sans-serif',
-          }}
-        >
-          <Typography variant="h4" color="#D62300">
-            Sign In
-          </Typography>
-          <Typography>
-            Please log in to access exclusive deals and offers.
-          </Typography>
-        </Box>
-      )}
+      {showLogin && <LoginPage onLoginSuccess={handleLoginSuccess} />} {/* Pass the success handler */}
 
       {showDash && (
         <Box
