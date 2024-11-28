@@ -1,12 +1,12 @@
 export async function GET(req, res) {
   // Log that the API page has been accessed
-  console.log("in the api page");
+  console.log("In the API page");
 
   // Import MongoDB client
   const { MongoClient } = require('mongodb');
 
-  // Use the MongoDB Cloud connection string (stored in an environment variable)
-  const url = process.env.DB_ADDRESS; 
+  // Use the MongoDB Cloud connection string
+  const url = "mongodb+srv://root:root1234@cluster0.v7dje.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
   // Create the MongoClient instance
   const client = new MongoClient(url);
@@ -19,7 +19,7 @@ export async function GET(req, res) {
     console.log('Connected successfully to MongoDB Cloud');
 
     // Access the database and collection
-    const db = client.db('app');
+    const db = client.db(dbName);
     const collection = db.collection('products'); // Collection name
 
     // Fetch all documents from the collection
@@ -27,12 +27,22 @@ export async function GET(req, res) {
     console.log('Found Products =>', findResult);
 
     // Return the result as a JSON response
-    return Response.json(findResult);
+    return new Response(JSON.stringify(findResult), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
   } catch (error) {
     // Log and return an error response in case of failure
     console.error('Database connection error:', error);
-    return Response.json({ error: 'Failed to fetch data from the database' }, { status: 500 });
+    return new Response(JSON.stringify({ error: 'Failed to fetch data from the database' }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
   } finally {
     // Ensure the database connection is closed
