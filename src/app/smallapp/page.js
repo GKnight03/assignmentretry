@@ -1,137 +1,70 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Container, TextField, Button, Typography, Box } from '@mui/material'; // Import necessary Material UI components
+import * as React from 'react';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import { useState, useEffect } from 'react';
+import LoginPage from '../login/page';
+import RegisterPage from '../register/page';
 
-export default function LoginPage({ onLoginSuccess }) {
-  const [loading, setLoading] = useState(false);
+export default function SmallApp() {
+  const [activePage, setActivePage] = useState('home'); // Tracks active page
+  const [data, setData] = useState(null);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [accType, setAccType] = useState('');
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess(false);
+  // Fetch products when the "menu" page is active
+  useEffect(() => {
+    if (activePage === 'menu') {
+      fetchProducts();
+    }
+  }, [activePage]);
 
-    const apiUrl = '/api/login';
-    const bodyData = { email, password };
-
-    runDBCallAsync(apiUrl, bodyData);
-  };
-
-  async function runDBCallAsync(url, bodyData) {
+  async function fetchProducts() {
     try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(bodyData),
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        setSuccess(true);
-        setAccType(data.acc_type); // Set the account type after successful login
-        onLoginSuccess(); // Call parent function to navigate to the dashboard
-      } else {
-        setError('Invalid login credentials. Please try again.');
-      }
+      // Mock product fetch logic
+      const response = await fetch('/api/products'); // Adjust your API endpoint
+      const result = await response.json();
+      setData(result);
     } catch (err) {
-      setError('Error connecting to the server. Please try again.');
-    } finally {
-      setLoading(false);
+      setError('Failed to fetch products.');
     }
   }
 
-  const handleFetchOrders = async () => {
-    try {
-      const response = await fetch('/api/getOrders');
-      const data = await response.json();
-
-      if (response.ok) {
-        console.log('Orders:', data.orders); // Handle the orders response
-      } else {
-        console.error('Failed to fetch orders');
-      }
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-    }
-  };
-
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
-        <Typography variant="h4" gutterBottom>Login</Typography>
-
-        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-          {/* Email Field */}
-          <TextField
-            label="Email"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-
-          {/* Password Field */}
-          <TextField
-            label="Password"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            disabled={loading}
-            sx={{ marginTop: 2 }}
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </Button>
-        </form>
-
-        {/* Error Message */}
-        {error && (
-          <Typography color="error" variant="body2" sx={{ marginTop: 2 }}>
-            {error}
+    <Box>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontFamily: 'sans-serif' }}>
+            Krispy Kreme Dashboard
           </Typography>
-        )}
+          <Button color="inherit" onClick={() => setActivePage('home')}>Home</Button>
+          <Button color="inherit" onClick={() => setActivePage('login')}>Sign In</Button>
+          <Button color="inherit" onClick={() => setActivePage('register')}>Sign Up</Button>
+          <Button color="inherit" onClick={() => setActivePage('menu')}>Menu</Button>
+        </Toolbar>
+      </AppBar>
 
-        {/* Success Message */}
-        {success && (
-          <Typography color="success" variant="body2" sx={{ marginTop: 2 }}>
-            Login successful! Redirecting...
-          </Typography>
-        )}
+      {/* Render content based on active page */}
+      {activePage === 'home' && <Box sx={{ p: 3 }}>Welcome to Krispy Kreme!</Box>}
 
-        {/* Manager Button */}
-        {accType === 'manager' && (
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleFetchOrders}
-            sx={{ marginTop: 2 }}
-          >
-            View Orders
-          </Button>
-        )}
-      </Box>
-    </Container>
+      {activePage === 'login' && <LoginPage />}  {/* Show login page */}
+
+      {activePage === 'register' && <RegisterPage />}  {/* Show register page */}
+
+      {activePage === 'menu' && (
+        <Box sx={{ p: 3 }}>
+          <Typography variant="h5" color="#00653A">Donut Menu</Typography>
+          {error && <Typography color="red">{error}</Typography>}
+          {data ? (
+            <Box>{/* Render product data here */}</Box>
+          ) : (
+            <Typography>Loading products...</Typography>
+          )}
+        </Box>
+      )}
+    </Box>
   );
 }

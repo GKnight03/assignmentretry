@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Container, TextField, Button, Typography, Box } from '@mui/material';
+import { Container, TextField, Button, Typography, Box } from '@mui/material'; // Import necessary Material UI components
 
 export default function LoginPage({ onLoginSuccess }) {
   const [loading, setLoading] = useState(false);
@@ -9,18 +9,23 @@ export default function LoginPage({ onLoginSuccess }) {
   const [success, setSuccess] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [accType, setAccType] = useState(''); // State to store account type
+  const [accType, setAccType] = useState('');
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
     setLoading(true);
     setError('');
     setSuccess(false);
 
+    const apiUrl = '/api/login';
     const bodyData = { email, password };
 
+    runDBCallAsync(apiUrl, bodyData);
+  };
+
+  async function runDBCallAsync(url, bodyData) {
     try {
-      const res = await fetch('/api/login', {
+      const res = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,17 +37,17 @@ export default function LoginPage({ onLoginSuccess }) {
 
       if (data.success) {
         setSuccess(true);
-        setAccType(data.acc_type); // Set the account type received from the login API response
-        onLoginSuccess(data.user); // Passing user data to parent for dashboard redirection
+        setAccType(data.acc_type); // Set the account type after successful login
+        onLoginSuccess(); // Call parent function to navigate to the dashboard
       } else {
-        setError(data.message || 'Invalid login credentials. Please try again.');
+        setError('Invalid login credentials. Please try again.');
       }
     } catch (err) {
       setError('Error connecting to the server. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const handleFetchOrders = async () => {
     try {
