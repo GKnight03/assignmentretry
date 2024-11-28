@@ -9,22 +9,20 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState, useEffect } from 'react';
-import LoginPage from '../login/page';
-import RegisterPage from '../register/page'; // Correct import path for RegisterPage
+import LoginPage from '../login/page'; // Corrected import path for LoginPage
+import RegisterPage from '../register/page'; // Corrected import path for RegisterPage
 
 export default function SmallApp() {
-  const [showLogin, setShowLogin] = useState(false);
-  const [showRegister, setShowRegister] = useState(false); // Added state for Register page
-  const [showDash, setShowDash] = useState(false);
-  const [showFirstPage, setShowFirstPage] = useState(true);
+  const [activePage, setActivePage] = useState('home'); // Track which page is active
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
 
+  // Fetch products when the Dashboard is displayed
   useEffect(() => {
-    if (showDash) {
+    if (activePage === 'menu') {
       fetchProducts();
     }
-  }, [showDash]);
+  }, [activePage]);
 
   async function fetchProducts() {
     try {
@@ -48,17 +46,22 @@ export default function SmallApp() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontFamily: 'sans-serif' }}>
             Krispy Kreme Dashboard
           </Typography>
-          <Button color="inherit" onClick={() => setShowFirstPage(true)}>Home</Button>
-          <Button color="inherit" onClick={() => setShowLogin(true)}>Sign In</Button>
-          <Button color="inherit" onClick={() => setShowRegister(true)}>Sign Up</Button> {/* Button for Register */}
-          <Button color="inherit" onClick={() => setShowDash(true)}>Menu</Button>
+          {/* Button Navigation */}
+          <Button color="inherit" onClick={() => setActivePage('home')}>Home</Button>
+          <Button color="inherit" onClick={() => setActivePage('login')}>Sign In</Button>
+          <Button color="inherit" onClick={() => setActivePage('register')}>Sign Up</Button>
+          <Button color="inherit" onClick={() => setActivePage('menu')}>Menu</Button>
         </Toolbar>
       </AppBar>
 
-      {showFirstPage && <Box>Welcome to Krispy Kreme!</Box>}
-      {showLogin && <LoginPage />}
-      {showRegister && <RegisterPage />} {/* Show RegisterPage */}
-      {showDash && (
+      {/* Render content based on active page */}
+      {activePage === 'home' && <Box>Welcome to Krispy Kreme!</Box>}
+
+      {activePage === 'login' && <LoginPage />}  {/* Show login page */}
+
+      {activePage === 'register' && <RegisterPage />}  {/* Show register page */}
+
+      {activePage === 'menu' && (
         <Box sx={{ p: 3 }}>
           <Typography variant="h5" color="#00653A">Donut Menu</Typography>
           {error && <Typography color="red">{error}</Typography>}
