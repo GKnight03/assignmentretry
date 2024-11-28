@@ -9,8 +9,8 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState, useEffect } from 'react';
-import LoginPage from './LoginPage';
-import RegisterPage from './RegisterPage';
+import LoginPage from './login';
+import RegisterPage from './register';
 
 export default function KrispyKremeApp() {
   const [showLogin, setShowLogin] = useState(false);
