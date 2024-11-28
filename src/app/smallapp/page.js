@@ -85,9 +85,9 @@ export default function SmallApp() {
         </Box>
       )}
 
-      {activePage === 'login' && <LoginPage />}  {/* Show login page */}
+      {activePage === 'login' && <LoginPage />}  {/* Show login page when activePage is 'login' */}
 
-      {activePage === 'register' && <RegisterPage />}  {/* Show register page */}
+      {activePage === 'register' && <RegisterPage />}  {/* Show register page when activePage is 'register' */}
 
       {activePage === 'menu' && (
         <Box sx={{ p: 3 }}>
