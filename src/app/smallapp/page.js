@@ -1,110 +1,137 @@
 'use client';
 
-import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import { useState, useEffect } from 'react';
-import LoginPage from '../login/page'; // Corrected import path for LoginPage
-import RegisterPage from '../register/page'; // Corrected import path for RegisterPage
+import React, { useState } from 'react';
+import { Container, TextField, Button, Typography, Box } from '@mui/material'; // Import necessary Material UI components
 
-export default function SmallApp() {
-  const [activePage, setActivePage] = useState('home'); // Track which page is active
-  const [data, setData] = useState(null);
+export default function LoginPage({ onLoginSuccess }) {
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [weather, setWeather] = useState(null); // Track weather data
+  const [success, setSuccess] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [accType, setAccType] = useState('');
 
-  // Fetch products when the Dashboard is displayed
-  useEffect(() => {
-    if (activePage === 'menu') {
-      fetchProducts();
-    }
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setError('');
+    setSuccess(false);
 
-    if (activePage === 'home') {
-      fetchWeather();
-    }
-  }, [activePage]);
+    const apiUrl = '/api/login';
+    const bodyData = { email, password };
 
-  // Fetch weather data for the Home page
-  async function fetchWeather() {
+    runDBCallAsync(apiUrl, bodyData);
+  };
+
+  async function runDBCallAsync(url, bodyData) {
     try {
-      const response = await fetch('/api/getWeather');
-      if (!response.ok) throw new Error('Failed to fetch weather data');
-      const result = await response.json();
-      setWeather(result.temp); // Store the temperature in the state
-    } catch (error) {
-      setError('Failed to load weather data.');
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bodyData),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setSuccess(true);
+        setAccType(data.acc_type); // Set the account type after successful login
+        onLoginSuccess(); // Call parent function to navigate to the dashboard
+      } else {
+        setError('Invalid login credentials. Please try again.');
+      }
+    } catch (err) {
+      setError('Error connecting to the server. Please try again.');
+    } finally {
+      setLoading(false);
     }
   }
 
-  // Fetch product data for the Menu page
-  async function fetchProducts() {
+  const handleFetchOrders = async () => {
     try {
-      const response = await fetch('/api/getProducts');
-      if (!response.ok) throw new Error('Failed to fetch products');
-      const result = await response.json();
-      setData(result);
-      setError('');
+      const response = await fetch('/api/getOrders');
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log('Orders:', data.orders); // Handle the orders response
+      } else {
+        console.error('Failed to fetch orders');
+      }
     } catch (error) {
-      setError('Failed to load products. Please try again later.');
+      console.error('Error fetching orders:', error);
     }
-  }
+  };
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" sx={{ bgcolor: '#D62300' }}>
-        <Toolbar>
-          <IconButton size="large" edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontFamily: 'sans-serif' }}>
-            Krispy Kreme Dashboard
+    <Container maxWidth="sm">
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
+        <Typography variant="h4" gutterBottom>Login</Typography>
+
+        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+          {/* Email Field */}
+          <TextField
+            label="Email"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          {/* Password Field */}
+          <TextField
+            label="Password"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            disabled={loading}
+            sx={{ marginTop: 2 }}
+          >
+            {loading ? 'Logging in...' : 'Login'}
+          </Button>
+        </form>
+
+        {/* Error Message */}
+        {error && (
+          <Typography color="error" variant="body2" sx={{ marginTop: 2 }}>
+            {error}
           </Typography>
-          {/* Button Navigation */}
-          <Button color="inherit" onClick={() => setActivePage('home')}>Home</Button>
-          <Button color="inherit" onClick={() => setActivePage('login')}>Sign In</Button>
-          <Button color="inherit" onClick={() => setActivePage('register')}>Sign Up</Button>
-          <Button color="inherit" onClick={() => setActivePage('menu')}>Menu</Button>
-        </Toolbar>
-      </AppBar>
+        )}
 
-      {/* Render content based on active page */}
-      {activePage === 'home' && (
-        <Box sx={{ p: 3 }}>
-          <Typography variant="h5" color="#00653A">Welcome to Krispy Kreme!</Typography>
-          {error && <Typography color="red">{error}</Typography>}
-          {weather ? (
-            <Typography>Current Temperature in Dublin: {weather}°C</Typography>
-          ) : (
-            <Typography>Loading weather data...</Typography>
-          )}
-        </Box>
-      )}
+        {/* Success Message */}
+        {success && (
+          <Typography color="success" variant="body2" sx={{ marginTop: 2 }}>
+            Login successful! Redirecting...
+          </Typography>
+        )}
 
-      {activePage === 'login' && <LoginPage />}  {/* Show login page when activePage is 'login' */}
-
-      {activePage === 'register' && <RegisterPage />}  {/* Show register page when activePage is 'register' */}
-
-      {activePage === 'menu' && (
-        <Box sx={{ p: 3 }}>
-          <Typography variant="h5" color="#00653A">Donut Menu</Typography>
-          {error && <Typography color="red">{error}</Typography>}
-          {data ? (
-            data.map((item, i) => (
-              <Box key={i} sx={{ border: '1px solid #D62300', p: 2, mb: 2 }}>
-                <Typography variant="h6">{item.pname}</Typography>
-                <Typography>Price: ${item.price}</Typography>
-              </Box>
-            ))
-          ) : (
-            <p>Loading donuts...</p>
-          )}
-        </Box>
-      )}
-    </Box>
+        {/* Manager Button */}
+        {accType === 'manager' && (
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleFetchOrders}
+            sx={{ marginTop: 2 }}
+          >
+            View Orders
+          </Button>
+        )}
+      </Box>
+    </Container>
   );
 }

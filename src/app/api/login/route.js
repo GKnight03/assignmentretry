@@ -14,8 +14,8 @@ export async function POST(req, res) {
     const user = await collection.findOne({ username: email });
 
     if (user && user.pass === password) {
-      // Authentication successful, return user details and success message
-      return res.json({ success: true, user });
+      // Authentication successful, return user details and account type
+      return res.json({ success: true, acc_type: user.acc_type });  // Returning acc_type
     } else {
       // Invalid credentials
       return res.json({ success: false, message: 'Invalid email or password' });

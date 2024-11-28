@@ -9,6 +9,7 @@ export default function LoginPage({ onLoginSuccess }) {
   const [success, setSuccess] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [accType, setAccType] = useState(''); // State to store account type
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -31,6 +32,7 @@ export default function LoginPage({ onLoginSuccess }) {
 
       if (data.success) {
         setSuccess(true);
+        setAccType(data.acc_type); // Set the account type received from the login API response
         onLoginSuccess(data.user); // Passing user data to parent for dashboard redirection
       } else {
         setError(data.message || 'Invalid login credentials. Please try again.');
@@ -39,6 +41,21 @@ export default function LoginPage({ onLoginSuccess }) {
       setError('Error connecting to the server. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFetchOrders = async () => {
+    try {
+      const response = await fetch('/api/getOrders');
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log('Orders:', data.orders); // Handle the orders response
+      } else {
+        console.error('Failed to fetch orders');
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
     }
   };
 
@@ -96,6 +113,18 @@ export default function LoginPage({ onLoginSuccess }) {
           <Typography color="success" variant="body2" sx={{ marginTop: 2 }}>
             Login successful! Redirecting...
           </Typography>
+        )}
+
+        {/* Manager Button */}
+        {accType === 'manager' && (
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleFetchOrders}
+            sx={{ marginTop: 2 }}
+          >
+            View Orders
+          </Button>
         )}
       </Box>
     </Container>
