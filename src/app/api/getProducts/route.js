@@ -19,7 +19,7 @@ export async function GET(req, res) {
     console.log('Connected successfully to MongoDB Cloud');
 
     // Access the database and collection
-    const db = client.db(dbName);
+    const db = client.db('app');
     const collection = db.collection('products'); // Collection name
 
     // Fetch all documents from the collection
