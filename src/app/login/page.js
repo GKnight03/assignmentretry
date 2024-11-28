@@ -1,3 +1,6 @@
+// Add this line at the top of the file
+'use client';
+
 import React, { useState } from 'react'; // Import React and useState
 
 export default function LoginPage({ onLoginSuccess }) {
