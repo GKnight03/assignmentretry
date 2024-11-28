@@ -1,7 +1,7 @@
-// Add this line at the top of the file
 'use client';
 
 import React, { useState } from 'react'; // Import React and useState
+import { Container } from '@mui/material'; // Add this import for the Container component
 
 export default function LoginPage({ onLoginSuccess }) {
   const [loading, setLoading] = useState(false);  // useState is now destructured from React
