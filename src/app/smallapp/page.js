@@ -16,14 +16,32 @@ export default function SmallApp() {
   const [activePage, setActivePage] = useState('home'); // Track which page is active
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
+  const [weather, setWeather] = useState(null); // Track weather data
 
   // Fetch products when the Dashboard is displayed
   useEffect(() => {
     if (activePage === 'menu') {
       fetchProducts();
     }
+
+    if (activePage === 'home') {
+      fetchWeather();
+    }
   }, [activePage]);
 
+  // Fetch weather data for the Home page
+  async function fetchWeather() {
+    try {
+      const response = await fetch('/api/getWeather');
+      if (!response.ok) throw new Error('Failed to fetch weather data');
+      const result = await response.json();
+      setWeather(result.temp); // Store the temperature in the state
+    } catch (error) {
+      setError('Failed to load weather data.');
+    }
+  }
+
+  // Fetch product data for the Menu page
   async function fetchProducts() {
     try {
       const response = await fetch('/api/getProducts');
@@ -55,7 +73,17 @@ export default function SmallApp() {
       </AppBar>
 
       {/* Render content based on active page */}
-      {activePage === 'home' && <Box>Welcome to Krispy Kreme!</Box>}
+      {activePage === 'home' && (
+        <Box sx={{ p: 3 }}>
+          <Typography variant="h5" color="#00653A">Welcome to Krispy Kreme!</Typography>
+          {error && <Typography color="red">{error}</Typography>}
+          {weather ? (
+            <Typography>Current Temperature in Dublin: {weather}°C</Typography>
+          ) : (
+            <Typography>Loading weather data...</Typography>
+          )}
+        </Box>
+      )}
 
       {activePage === 'login' && <LoginPage />}  {/* Show login page */}
 

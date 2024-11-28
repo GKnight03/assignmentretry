@@ -1,3 +1,5 @@
+import fetch from 'node-fetch';
+
 export async function GET(req, res) {
     // Log to the console for debugging
     console.log("in the weather API page");
