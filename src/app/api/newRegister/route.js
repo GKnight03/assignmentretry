@@ -1,43 +1,45 @@
 import { MongoClient } from 'mongodb';
 
-export async function GET(req, res) {
-  // Log for debugging purposes
-  console.log("in the api page");
+export async function POST(req) {
+  const { username, email, password } = await req.json();
+  const uri = process.env.DB_ADDRESS;
+  const client = new MongoClient(uri);
 
-  // Get the values that were sent across to us
-  const { searchParams } = new URL(req.url);
-  const email = searchParams.get('email');
-  const pass = searchParams.get('pass');
-  const address = searchParams.get('address'); // Corrected field name
+  if (!username || !email || !password) {
+    return new Response(
+      JSON.stringify({ message: 'All fields are required' }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
 
-  // Log the values for debugging
-  console.log(email);
-  console.log(pass);
-  console.log(address);
-
-  // Connect to MongoDB using DB_ADDRESS
-  const client = new MongoClient(process.env.DB_ADDRESS);
-  
   try {
     await client.connect();
-    const db = client.db('app');  // Ensure your DB name is correct
-    const usersCollection = db.collection('login');
-    
-    // Check if email already exists
-    const existingUser = await usersCollection.findOne({ email });
-    
+    const db = client.db(process.env.DB_NAME);
+    const users = db.collection('users');
+
+    // Check if the user already exists
+    const existingUser = await users.findOne({ email });
     if (existingUser) {
-      return new Response(JSON.stringify({ data: 'Email already in use' }), { status: 400 });
+      return new Response(
+        JSON.stringify({ message: 'User with this email already exists' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
-    // Insert the new user into the collection
-    await usersCollection.insertOne({ email, pass, address });
-    
-    // Return a success response
-    return new Response(JSON.stringify({ data: 'valid' }), { status: 200 });
-  } catch (err) {
-    console.error('Database error:', err);
-    return new Response(JSON.stringify({ data: 'Error connecting to the database' }), { status: 500 });
+    // Create the new user
+    const newUser = { username, email, password }; // In production, you should hash the password
+    await users.insertOne(newUser);
+
+    return new Response(
+      JSON.stringify({ message: 'User registered successfully' }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
+  } catch (error) {
+    console.error('Error registering user:', error);
+    return new Response(
+      JSON.stringify({ message: 'Registration failed' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
   } finally {
     await client.close();
   }

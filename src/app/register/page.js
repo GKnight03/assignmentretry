@@ -1,169 +1,75 @@
 'use client';
 
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Container from '@mui/material/Container';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import { useState } from 'react';
+import { TextField, Button, Typography, Box } from '@mui/material';
 
 export default function RegisterPage() {
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState('');
-  const [success, setSuccess] = React.useState(false);
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
-  const handleSubmit = (event) => {
-    console.log("handling submit");
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-
-    let email = data.get('email');
-    let pass = data.get('pass');
-    let address = data.get('address');
-
-    // Client-side validation for required fields
-    if (!email || !pass || !address) {
-      setError("Please fill in all fields.");
+  const handleRegister = async () => {
+    if (!username || !email || !password) {
+      setError('All fields are required.');
       return;
     }
 
-    console.log("Sent email:" + email);
-    console.log("Sent pass:" + pass);
-    console.log("Sent address:" + address);
-
-    setLoading(true);
-    setError('');
-    setSuccess(false);
-
-    // Use relative API path instead of localhost URL
-    const apiUrl = '/api/newRegister';
-    const bodyData = { email, pass, address };
-
-    runDBCallAsync(apiUrl, bodyData);
-  };
-
-  async function runDBCallAsync(url, bodyData) {
     try {
-      const res = await fetch(url, {
+      const response = await fetch('/api/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(bodyData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password }),
       });
 
-      const data = await res.json();
-
-      // Checking the response from the server
-      if (data.data === "valid") {
-        setSuccess(true);
-        setError('');  // Clear error on success
+      const data = await response.json();
+      if (response.ok) {
+        setSuccessMessage('Registration successful! You can now log in.');
+        setError('');
+        // Optionally, redirect to login page after success
       } else {
-        setError("Registration failed. Please try again.");
+        setError(data.message || 'Registration failed. Please try again.');
       }
-    } catch (err) {
-      setError("Error connecting to the server. Please try again.");
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      setError('Error occurred while registering. Please try again.');
     }
-  }
+  };
 
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ height: '100vh' }}>
-        <Box
-          component="form"
-          onSubmit={handleSubmit}
-          noValidate
-          sx={{
-            mt: 1,
-            bgcolor: '#FFF8E6',
-            border: '2px dashed #D62300',
-            p: 3,
-            fontFamily: 'KrispyKremeFont, sans-serif',
-            borderRadius: 2,
-          }}
-        >
-          <Typography variant="h4" color="#D62300" sx={{ textAlign: 'center', mb: 2 }}>
-            Krispy Kreme - Register
-          </Typography>
-
-          {success && (
-            <Typography variant="h6" color="green" sx={{ textAlign: 'center', mb: 2 }}>
-              Welcome to Krispy Kreme!
-            </Typography>
-          )}
-
-          {error && (
-            <Typography variant="h6" color="red" sx={{ textAlign: 'center', mb: 2 }}>
-              {error}
-            </Typography>
-          )}
-
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="email"
-            label="Email Address"
-            name="email"
-            autoComplete="email"
-            autoFocus
-          />
-
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="pass"
-            label="Password"
-            type="password"
-            id="pass"
-            autoComplete="current-password"
-          />
-
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="address"
-            label="Home Address"
-            type="text"
-            id="address"
-            autoComplete="current-address"
-          />
-
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
-          />
-
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{
-              mt: 3,
-              mb: 2,
-              bgcolor: '#00653A',
-              ':hover': { bgcolor: '#004225' },
-            }}
-            disabled={loading}
-          >
-            {loading ? 'Registering...' : 'Register'}
-          </Button>
-
-          {loading && (
-            <Typography variant="body2" color="textSecondary" sx={{ textAlign: 'center' }}>
-              Please wait while we glaze your account.
-            </Typography>
-          )}
-        </Box>
-      </Box>
-    </Container>
+    <Box sx={{ maxWidth: 400, margin: 'auto', padding: 2 }}>
+      <Typography variant="h6" gutterBottom>Register</Typography>
+      {error && <Typography color="red" variant="body2">{error}</Typography>}
+      {successMessage && <Typography color="green" variant="body2">{successMessage}</Typography>}
+      
+      <TextField
+        label="Username"
+        variant="outlined"
+        fullWidth
+        margin="normal"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <TextField
+        label="Email"
+        variant="outlined"
+        fullWidth
+        margin="normal"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <TextField
+        label="Password"
+        type="password"
+        variant="outlined"
+        fullWidth
+        margin="normal"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      
+      <Button variant="contained" fullWidth onClick={handleRegister}>Register</Button>
+    </Box>
   );
 }

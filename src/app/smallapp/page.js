@@ -9,18 +9,17 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState, useEffect } from 'react';
-import LoginPage from '../login/page'; // Corrected import path for LoginPage
-import RegisterPage from '../register/page'; // Corrected import path for RegisterPage
+import LoginPage from '../login/page';
+import RegisterPage from '../register/page'; // Correct import path for RegisterPage
 
 export default function SmallApp() {
   const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false); // Added state for Register page
   const [showDash, setShowDash] = useState(false);
   const [showFirstPage, setShowFirstPage] = useState(true);
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
-  const [cartItems, setCartItems] = useState([]);
 
-  // Fetch products when the Dashboard is displayed
   useEffect(() => {
     if (showDash) {
       fetchProducts();
@@ -39,27 +38,6 @@ export default function SmallApp() {
     }
   }
 
-  function putInCart(pname) {
-    fetch(`/api/putInCart`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ pname }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          alert('Item added to cart!');
-        } else {
-          setError('Failed to add item to cart.');
-        }
-      })
-      .catch(() => {
-        setError('Error adding to cart.');
-      });
-  }
-
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" sx={{ bgcolor: '#D62300' }}>
@@ -72,12 +50,14 @@ export default function SmallApp() {
           </Typography>
           <Button color="inherit" onClick={() => setShowFirstPage(true)}>Home</Button>
           <Button color="inherit" onClick={() => setShowLogin(true)}>Sign In</Button>
+          <Button color="inherit" onClick={() => setShowRegister(true)}>Sign Up</Button> {/* Button for Register */}
           <Button color="inherit" onClick={() => setShowDash(true)}>Menu</Button>
         </Toolbar>
       </AppBar>
 
       {showFirstPage && <Box>Welcome to Krispy Kreme!</Box>}
       {showLogin && <LoginPage />}
+      {showRegister && <RegisterPage />} {/* Show RegisterPage */}
       {showDash && (
         <Box sx={{ p: 3 }}>
           <Typography variant="h5" color="#00653A">Donut Menu</Typography>
@@ -87,7 +67,6 @@ export default function SmallApp() {
               <Box key={i} sx={{ border: '1px solid #D62300', p: 2, mb: 2 }}>
                 <Typography variant="h6">{item.pname}</Typography>
                 <Typography>Price: ${item.price}</Typography>
-                <Button onClick={() => putInCart(item.pname)}>Add to Cart</Button>
               </Box>
             ))
           ) : (
