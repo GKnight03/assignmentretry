@@ -55,7 +55,7 @@ export default function LoginPage({ onLoginSuccess }) {
       const data = await response.json();
 
       if (response.ok) {
-        console.log('Orders:', data.orders); // Handle the orders response
+        console.log('Orders:', JSON.stringify(data.orders, null, 2)); // Print orders as JSON with formatting
       } else {
         console.error('Failed to fetch orders');
       }

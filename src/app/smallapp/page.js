@@ -45,7 +45,7 @@ export default function SmallApp() {
       const response = await fetch('/api/putInCart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pname }),
+        body: JSON.stringify({ pname }),  // Send pname, not name
       });
 
       if (response.ok) {
@@ -166,26 +166,15 @@ export default function SmallApp() {
                     textAlign: 'center',
                     padding: 2,
                     display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
                   }}
                 >
-                  <Typography
-                    variant="h6"
-                    sx={{ color: '#6B4226', fontWeight: 'bold' }}
-                  >
-                    {item.name}
+                  <Typography variant="h6" sx={{ color: '#6B4226', fontWeight: 'bold' }}>
+                    {item.pname}  {/* Use pname instead of name */}
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ mt: 1, color: '#6B4226' }}
-                  >
+                  <Typography variant="body2" sx={{ mt: 1, color: '#6B4226' }}>
                     {item.description}
                   </Typography>
-                  <Typography
-                    variant="h6"
-                    sx={{ mt: 2, color: '#FF69B4' }}
-                  >
+                  <Typography variant="h6" sx={{ mt: 2, color: '#FF69B4' }}>
                     ${item.price}
                   </Typography>
                   <Button
@@ -196,7 +185,7 @@ export default function SmallApp() {
                       fontWeight: 'bold',
                       mt: 2,
                     }}
-                    onClick={() => handleAddToCart(item.name)}
+                    onClick={() => handleAddToCart(item.pname)}  // Pass pname here
                   >
                     Add to Cart
                   </Button>
