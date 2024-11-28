@@ -1,47 +1,27 @@
-export async function GET(req, res) {
-    console.log("in the API page");
+import { MongoClient } from 'mongodb';
 
-    try {
-        // Extract parameters from the URL
-        const { searchParams } = new URL(req.url);
-        const email = searchParams.get('email');
-        const pass = searchParams.get('pass');
+export async function POST(req, res) {
+  try {
+    const { email, password } = await req.json();  // Get email and password from the request body
 
-        console.log('Received email:', email);
-        console.log('Received pass:', pass);
+    // Connect to MongoDB
+    const url = process.env.DB_ADDRESS;  // MongoDB connection string from environment variable
+    const client = new MongoClient(url);
+    const db = client.db('app');  // Database name
+    const collection = db.collection('login');  // The login collection
 
-        // MongoDB connection setup
-        const { MongoClient } = require('mongodb');
-        const url = process.env.DB_ADDRESS; // Use environment variable for DB address
-        const client = new MongoClient(url);
-        const dbName = 'app'; // database name
-        await client.connect();
+    // Find the user by email
+    const user = await collection.findOne({ username: email });
 
-        console.log('Connected successfully to server');
-        const db = client.db(dbName);
-        const collection = db.collection('login'); // collection name
-
-        // Find user in the 'login' collection by email
-        const findResult = await collection.find({ "username": email }).toArray();
-
-        console.log('Found documents =>', findResult);
-
-        let valid = false;
-        if (findResult.length > 0) {
-            valid = true;
-            console.log("Login valid");
-        } else {
-            valid = false;
-            console.log("Login invalid");
-        }
-
-        // Close the database connection
-        await client.close();
-
-        // Return response
-        return res.json({ data: valid.toString() });
-    } catch (error) {
-        console.error('Error occurred:', error);
-        return res.status(500).json({ message: 'Internal server error', error: error.message });
+    if (user && user.pass === password) {
+      // Authentication successful, return user details and success message
+      return res.json({ success: true, user });
+    } else {
+      // Invalid credentials
+      return res.json({ success: false, message: 'Invalid email or password' });
     }
+  } catch (error) {
+    console.error('Error occurred:', error);
+    return res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+  }
 }

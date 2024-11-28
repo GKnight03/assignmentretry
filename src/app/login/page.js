@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Container, TextField, Button, Typography, Box } from '@mui/material'; // Import necessary Material UI components
+import { Container, TextField, Button, Typography, Box } from '@mui/material';
 
 export default function LoginPage({ onLoginSuccess }) {
   const [loading, setLoading] = useState(false);
@@ -10,21 +10,16 @@ export default function LoginPage({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
     setError('');
     setSuccess(false);
 
-    const apiUrl = '/api/login';
     const bodyData = { email, password };
 
-    runDBCallAsync(apiUrl, bodyData);
-  };
-
-  async function runDBCallAsync(url, bodyData) {
     try {
-      const res = await fetch(url, {
+      const res = await fetch('/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -36,16 +31,16 @@ export default function LoginPage({ onLoginSuccess }) {
 
       if (data.success) {
         setSuccess(true);
-        onLoginSuccess(); // Call parent function to navigate to the dashboard
+        onLoginSuccess(data.user); // Passing user data to parent for dashboard redirection
       } else {
-        setError('Invalid login credentials. Please try again.');
+        setError(data.message || 'Invalid login credentials. Please try again.');
       }
     } catch (err) {
       setError('Error connecting to the server. Please try again.');
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <Container maxWidth="sm">
