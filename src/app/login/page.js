@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react'; // useState is now safe to use
@@ -13,7 +12,7 @@ export default function LoginPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Simulate login process and check if the user is a manager
+    // Simulate login process and check if the user is a customer or manager
     const response = await fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -22,10 +21,18 @@ export default function LoginPage() {
 
     const data = await response.json();
 
-    if (data.success && data.user.acc_type === 'manager') {
-      router.push('/manager'); // Use router.push for client-side navigation
+    if (data.success) {
+      if (data.user.acc_type === 'manager') {
+        // If the user is a manager, navigate to the manager dashboard
+        router.push('/manager');
+      } else if (data.user.acc_type === 'customer') {
+        // If the user is a customer, navigate to the home page or product menu
+        router.push('/menu');  // Adjust this based on where you want customers to land
+      } else {
+        setError('Invalid account type.');
+      }
     } else {
-      setError('Invalid login or user is not a manager.');
+      setError('Invalid email or password.');
     }
   };
 
