@@ -52,7 +52,7 @@ export default function RegisterPage() {
     <Box sx={{ backgroundColor: '#FFF8E7', minHeight: '100vh', padding: 3 }}>
       <Box sx={{ maxWidth: 400, margin: 'auto', padding: 2 }}>
         <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold', color: '#6B4226' }}>
-          🍩 KRISPY KREME Registration
+          🍩 EVIL KRISPY KREME Registration
         </Typography>
 
         {/* Display Error Message */}
@@ -77,7 +77,18 @@ export default function RegisterPage() {
             margin="normal"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            sx={{ backgroundColor: '#fff', borderRadius: '4px' }}
+            sx={{
+              backgroundColor: '#fff',
+              borderRadius: '4px',
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: '#6B4226', // Evil Krispy Kreme theme color
+                },
+                '&:hover fieldset': {
+                  borderColor: '#FFB5E8', // Light pink hover effect
+                },
+              },
+            }}
             required
           />
           <TextField
@@ -88,7 +99,18 @@ export default function RegisterPage() {
             margin="normal"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            sx={{ backgroundColor: '#fff', borderRadius: '4px' }}
+            sx={{
+              backgroundColor: '#fff',
+              borderRadius: '4px',
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: '#6B4226',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#FFB5E8',
+                },
+              },
+            }}
             required
           />
           <Button
@@ -97,11 +119,11 @@ export default function RegisterPage() {
             onClick={handleRegister}
             disabled={isLoading}
             sx={{
-              backgroundColor: '#FFB5E8',
-              color: '#6B4226',
+              backgroundColor: '#FFB5E8', // Light pink
+              color: '#6B4226', // Evil Krispy Kreme dark color
               marginTop: 2,
               '&:hover': {
-                backgroundColor: '#FF9CE8',
+                backgroundColor: '#d90166', // Darker pink on hover
               },
             }}
           >
@@ -114,7 +136,11 @@ export default function RegisterPage() {
             Already have an account?{' '}
             <Button
               onClick={() => router.push('/login')}
-              sx={{ color: '#FFB5E8', textDecoration: 'underline' }}
+              sx={{
+                color: '#FFB5E8',
+                textDecoration: 'underline',
+                '&:hover': { backgroundColor: 'transparent' }, // Avoid hover background
+              }}
             >
               Log In
             </Button>
