@@ -1,36 +1,37 @@
 "use client"; // Add this line to mark the component as client-side
 
 import * as React from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { useState, useEffect } from 'react';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import { useRouter } from 'next/router';
 
 export default function SmallApp() {
-  const [activePage, setActivePage] = useState('home');
+  const [activePage, setActivePage] = useState('home'); 
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [cart, setCart] = useState([]);
-  const [isClient, setIsClient] = useState(false); // Track if we are on the client side
+  const [isClient, setIsClient] = useState(false);
   const [weather, setWeather] = useState(null);
   const [weatherError, setWeatherError] = useState('');
-  const router = useRouter();
-
+  const router = useRouter(); // Define the router instance
+  
   useEffect(() => {
-    setIsClient(true); // Set state to true once the component mounts
+    setIsClient(true); // Ensure the component is mounted on the client side
     if (isLoggedIn) {
-      fetchCartItems();
-      fetchWeather();
+      fetchCartItems(); // Fetch cart items when logged in
+      fetchWeather(); // Fetch weather when logged in
     }
   }, [isLoggedIn]);
 
+  // Fetch products when the "menu" page is active
   useEffect(() => {
     if (activePage === 'menu') {
       fetchProducts();
@@ -70,7 +71,7 @@ export default function SmallApp() {
     }
   }
 
-  // Fetch weather data
+  // Fetch weather
   async function fetchWeather() {
     try {
       const response = await fetch('https://api.openweathermap.org/data/2.5/weather?q=YOUR_CITY&appid=YOUR_API_KEY');
@@ -85,21 +86,33 @@ export default function SmallApp() {
     }
   }
 
-  // Handle checkout process
+  // Handle product add to cart
+  function handleAddToCart(product) {
+    const updatedCart = [...cart];
+    const productIndex = updatedCart.findIndex((item) => item._id === product._id);
+    
+    if (productIndex >= 0) {
+      updatedCart[productIndex].quantity += 1;
+    } else {
+      updatedCart.push({ ...product, quantity: 1 });
+    }
+
+    setCart(updatedCart);
+  }
+
+  // Handle checkout
   async function handleCheckout() {
     try {
       const response = await fetch('/api/checkout', {
         method: 'POST',
         body: JSON.stringify({ items: cart, totalAmount: calculateTotal() }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
       });
 
       const result = await response.json();
       if (response.ok) {
         alert('Order confirmed!');
-        setCart([]); // Empty the cart after successful checkout
+        setCart([]); 
       } else {
         alert('Checkout failed. Please try again.');
       }
@@ -108,13 +121,12 @@ export default function SmallApp() {
     }
   }
 
-  // Calculate the total of the cart
   function calculateTotal() {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   }
 
   if (!isClient) {
-    return null; // Return null to avoid server-side rendering issues
+    return null; // Avoid errors during SSR
   }
 
   return (
@@ -130,7 +142,6 @@ export default function SmallApp() {
           <Button color="inherit" onClick={() => setActivePage('home')} sx={{ color: '#6B4226' }}>
             Home
           </Button>
-
           {!isLoggedIn ? (
             <>
               <Button color="inherit" onClick={() => setActivePage('login')} sx={{ color: '#6B4226' }}>
@@ -160,7 +171,6 @@ export default function SmallApp() {
           <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
             Our Delicious Dough
           </Typography>
-
           {loading ? (
             <Typography sx={{ textAlign: 'center' }}>Loading products...</Typography>
           ) : (
