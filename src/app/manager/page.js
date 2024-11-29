@@ -1,4 +1,3 @@
-// app/manager/page.js
 'use client';
 
 import * as React from 'react';
@@ -10,18 +9,28 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation'; // For navigation
 
 export default function ManagerDashboard() {
   const [orderStats, setOrderStats] = useState(null);
+  const router = useRouter();
 
+  // Fetch order statistics when the component mounts
   useEffect(() => {
-    fetch('/api/getOrderStatistics') // Fetching order statistics
+    fetch('/api/getOrderStatistics') // This endpoint should return statistics about orders
       .then((res) => res.json())
       .then((data) => setOrderStats(data))
       .catch((error) => console.error('Error fetching order statistics:', error));
   }, []);
 
+  // If orderStats is not available yet, display a loading message
   if (!orderStats) return <p>Loading order statistics...</p>;
+
+  // Log out handler (if needed for your app)
+  const handleLogout = () => {
+    // Implement logout functionality (clearing session or tokens)
+    router.push('/login'); // Redirect to login page after logging out
+  };
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -33,7 +42,7 @@ export default function ManagerDashboard() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#ff0000' }}>
             Evil Krispy Kreme - Manager Dashboard
           </Typography>
-          <Button color="inherit">Log Out</Button>
+          <Button color="inherit" onClick={handleLogout}>Log Out</Button>
         </Toolbar>
       </AppBar>
 

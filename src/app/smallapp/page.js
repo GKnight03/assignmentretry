@@ -18,6 +18,7 @@ export default function SmallApp() {
   const [loading, setLoading] = useState(false);
   const [accType, setAccType] = useState(''); // Track account type
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
+  const [cart, setCart] = useState([]); // Track items in the shopping cart
 
   // Fetch products when the "menu" page is active
   useEffect(() => {
@@ -43,24 +44,22 @@ export default function SmallApp() {
     }
   }
 
-  async function handleAddToCart(pname) {
-    try {
-      const response = await fetch('/api/putInCart', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pname }),
-      });
-
-      if (response.ok) {
-        console.log(`${pname} added to cart successfully.`);
-      } else {
-        console.error('Failed to add item to cart.');
-      }
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-    }
+  // Add product to cart
+  function handleAddToCart(product) {
+    setCart((prevCart) => [...prevCart, product]);
   }
 
+  // Remove product from cart
+  function handleRemoveFromCart(productName) {
+    setCart((prevCart) => prevCart.filter((item) => item.pname !== productName));
+  }
+
+  // Calculate total cost
+  function calculateTotal() {
+    return cart.reduce((total, item) => total + item.price, 0).toFixed(2); // Assuming products have a 'price' field
+  }
+
+  // Handle login success
   function handleLoginSuccess(accType) {
     setAccType(accType); // Set the account type after successful login
     setIsLoggedIn(true); // Mark as logged in
@@ -190,16 +189,47 @@ export default function SmallApp() {
               {data.map((item, index) => (
                 <Box key={index}>
                   <Typography>{item.pname}</Typography>
-                  {/* Other content */}
-                  <Button onClick={() => handleAddToCart(item.pname)}>
-                    Add to Cart
-                  </Button>
+                  <Typography>${item.price.toFixed(2)}</Typography>
+                  <Button onClick={() => handleAddToCart(item)}>Add to Cart</Button>
                 </Box>
               ))}
             </Box>
           ) : (
             <Typography>No products available.</Typography>
           )}
+        </Box>
+      )}
+
+      {activePage === 'checkout' && (
+        <Box sx={{ p: 3 }}>
+          <Typography variant="h5" sx={{ textAlign: 'center', color: '#6B4226' }}>
+            Checkout
+          </Typography>
+          <Box sx={{ mt: 2 }}>
+            {cart.length === 0 ? (
+              <Typography>No items in the cart</Typography>
+            ) : (
+              <Box>
+                {cart.map((item, index) => (
+                  <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography>{item.pname}</Typography>
+                    <Button onClick={() => handleRemoveFromCart(item.pname)}>Remove</Button>
+                  </Box>
+                ))}
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="h6">Total: ${calculateTotal()}</Typography>
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    sx={{ mt: 2 }}
+                    onClick={() => alert('Order placed successfully!')}
+                  >
+                    Place Order
+                  </Button>
+                </Box>
+              </Box>
+            )}
+          </Box>
         </Box>
       )}
 

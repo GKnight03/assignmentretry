@@ -1,4 +1,3 @@
-// app/api/getOrderStatistics/route.js
 import { MongoClient } from 'mongodb';
 
 export async function GET() {
@@ -8,21 +7,24 @@ export async function GET() {
   try {
     await client.connect();
     const db = client.db(process.env.DB_NAME);
-    const collection = db.collection('orders');  // Assuming 'orders' collection holds all the orders
+    const ordersCollection = db.collection('orders'); // Assuming orders collection stores all orders
 
-    const orders = await collection.find({}).toArray();
+    // Aggregate the total orders count and total cost
+    const stats = await ordersCollection.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalOrders: { $sum: 1 },
+          totalCost: { $sum: "$totalCost" } // Assuming each order document has a field `totalCost`
+        }
+      }
+    ]).toArray();
 
-    // Calculate total number of orders and total cost
-    const totalOrders = orders.length;
-    const totalCost = orders.reduce((sum, order) => sum + order.totalPrice, 0); // Assuming 'totalPrice' is the field in the order
+    const result = stats.length > 0 ? stats[0] : { totalOrders: 0, totalCost: 0 };
 
-    return new Response(
-      JSON.stringify({
-        totalOrders,
-        totalCost,
-      }),
-      { headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify(result), {
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error('Error fetching order statistics:', error);
     return new Response(JSON.stringify({ error: 'Failed to fetch order statistics' }), {
