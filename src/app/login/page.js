@@ -1,66 +1,47 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Container, TextField, Button, Typography, Box } from '@mui/material'; // Import necessary Material UI components
+import { useRouter } from 'next/navigation'; // Next.js router for programmatic navigation
+import { Container, TextField, Button, Typography, Box } from '@mui/material';
 
-export default function LoginPage({ onLoginSuccess }) {
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [accType, setAccType] = useState('');
+  const router = useRouter(); // Next.js router instance
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
     setError('');
     setSuccess(false);
 
-    const apiUrl = '/api/login';
-    const bodyData = { email, password };
-
-    runDBCallAsync(apiUrl, bodyData);
-  };
-
-  async function runDBCallAsync(url, bodyData) {
     try {
-      const res = await fetch(url, {
+      const response = await fetch('/api/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(bodyData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
+      const data = await response.json();
 
       if (data.success) {
         setSuccess(true);
-        setAccType(data.acc_type); // Set the account type after successful login
-        onLoginSuccess(); // Call parent function to navigate to the dashboard
+
+        if (data.acc_type === 'manager') {
+          router.push('/manager'); // Redirect manager to /manager page
+        } else {
+          alert('You are not authorized to access the manager page.');
+        }
       } else {
-        setError('Invalid login credentials. Please try again.');
+        setError('Invalid email or password. Please try again.');
       }
     } catch (err) {
       setError('Error connecting to the server. Please try again.');
     } finally {
       setLoading(false);
-    }
-  }
-
-  const handleFetchOrders = async () => {
-    try {
-      const response = await fetch('/api/getOrders');
-      const data = await response.json();
-
-      if (response.ok) {
-        console.log('Orders:', JSON.stringify(data.orders, null, 2)); // Print orders as JSON with formatting
-      } else {
-        console.error('Failed to fetch orders');
-      }
-    } catch (error) {
-      console.error('Error fetching orders:', error);
     }
   };
 
@@ -70,7 +51,6 @@ export default function LoginPage({ onLoginSuccess }) {
         <Typography variant="h4" gutterBottom>Login</Typography>
 
         <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-          {/* Email Field */}
           <TextField
             label="Email"
             variant="outlined"
@@ -80,8 +60,6 @@ export default function LoginPage({ onLoginSuccess }) {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-
-          {/* Password Field */}
           <TextField
             label="Password"
             variant="outlined"
@@ -92,45 +70,12 @@ export default function LoginPage({ onLoginSuccess }) {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            disabled={loading}
-            sx={{ marginTop: 2 }}
-          >
+          <Button type="submit" variant="contained" fullWidth disabled={loading} sx={{ mt: 2 }}>
             {loading ? 'Logging in...' : 'Login'}
           </Button>
         </form>
 
-        {/* Error Message */}
-        {error && (
-          <Typography color="error" variant="body2" sx={{ marginTop: 2 }}>
-            {error}
-          </Typography>
-        )}
-
-        {/* Success Message */}
-        {success && (
-          <Typography color="success" variant="body2" sx={{ marginTop: 2 }}>
-            Login successful! Redirecting...
-          </Typography>
-        )}
-
-        {/* Manager Button */}
-        {accType === 'manager' && (
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleFetchOrders}
-            sx={{ marginTop: 2 }}
-          >
-            View Orders
-          </Button>
-        )}
+        {error && <Typography color="error" variant="body2" sx={{ mt: 2 }}>{error}</Typography>}
       </Box>
     </Container>
   );
