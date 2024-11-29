@@ -9,12 +9,15 @@ import Button from '@mui/material/Button';
 import { useState, useEffect } from 'react';
 import LoginPage from '../login/page';
 import RegisterPage from '../register/page';
+import ManagerDashboard from '../manager/page'; // Import ManagerDashboard
 
 export default function SmallApp() {
   const [activePage, setActivePage] = useState('home'); // Tracks active page
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [accType, setAccType] = useState(''); // Track account type
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
 
   // Fetch products when the "menu" page is active
   useEffect(() => {
@@ -27,7 +30,7 @@ export default function SmallApp() {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('/api/getProducts'); 
+      const response = await fetch('/api/getProducts');
       if (!response.ok) {
         throw new Error('Failed to fetch products.');
       }
@@ -45,7 +48,7 @@ export default function SmallApp() {
       const response = await fetch('/api/putInCart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pname }),  // Send pname, not name
+        body: JSON.stringify({ pname }),
       });
 
       if (response.ok) {
@@ -55,6 +58,16 @@ export default function SmallApp() {
       }
     } catch (error) {
       console.error('Error adding to cart:', error);
+    }
+  }
+
+  function handleLoginSuccess(accType) {
+    setAccType(accType); // Set the account type after successful login
+    setIsLoggedIn(true); // Mark as logged in
+    if (accType === 'manager') {
+      setActivePage('manager'); // Navigate to ManagerDashboard if the user is a manager
+    } else {
+      setActivePage('home'); // Navigate to Home if not a manager
     }
   }
 
@@ -80,20 +93,37 @@ export default function SmallApp() {
           >
             Home
           </Button>
-          <Button
-            color="inherit"
-            onClick={() => setActivePage('login')}
-            sx={{ color: '#6B4226', fontWeight: 'bold' }}
-          >
-            Sign In
-          </Button>
-          <Button
-            color="inherit"
-            onClick={() => setActivePage('register')}
-            sx={{ color: '#6B4226', fontWeight: 'bold' }}
-          >
-            Sign Up
-          </Button>
+          {!isLoggedIn && (
+            <>
+              <Button
+                color="inherit"
+                onClick={() => setActivePage('login')}
+                sx={{ color: '#6B4226', fontWeight: 'bold' }}
+              >
+                Sign In
+              </Button>
+              <Button
+                color="inherit"
+                onClick={() => setActivePage('register')}
+                sx={{ color: '#6B4226', fontWeight: 'bold' }}
+              >
+                Sign Up
+              </Button>
+            </>
+          )}
+          {isLoggedIn && (
+            <Button
+              color="inherit"
+              onClick={() => {
+                setIsLoggedIn(false);
+                setAccType('');
+                setActivePage('home');
+              }}
+              sx={{ color: '#6B4226', fontWeight: 'bold' }}
+            >
+              Logout
+            </Button>
+          )}
           <Button
             color="inherit"
             onClick={() => setActivePage('menu')}
@@ -119,12 +149,15 @@ export default function SmallApp() {
         </Box>
       )}
 
-      {activePage === 'login' && <LoginPage />} {/* Show login page */}
+      {activePage === 'login' && (
+        <LoginPage onLoginSuccess={(accType) => handleLoginSuccess(accType)} />
+      )}
 
-      {activePage === 'register' && <RegisterPage />} {/* Show register page */}
+      {activePage === 'register' && <RegisterPage />}
 
       {activePage === 'menu' && (
         <Box sx={{ p: 3 }}>
+          {/* Render the product menu */}
           <Typography
             variant="h5"
             sx={{
@@ -155,50 +188,23 @@ export default function SmallApp() {
               }}
             >
               {data.map((item, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    width: 200,
-                    height: 300,
-                    backgroundColor: '#FFF1E6',
-                    borderRadius: 4,
-                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                    textAlign: 'center',
-                    padding: 2,
-                    display: 'flex',
-                  }}
-                >
-                  <Typography variant="h6" sx={{ color: '#6B4226', fontWeight: 'bold' }}>
-                    {item.pname}  {/* Use pname instead of name */}
-                  </Typography>
-                  <Typography variant="body2" sx={{ mt: 1, color: '#6B4226' }}>
-                    {item.description}
-                  </Typography>
-                  <Typography variant="h6" sx={{ mt: 2, color: '#FF69B4' }}>
-                    ${item.price}
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    sx={{
-                      backgroundColor: '#FFB5E8',
-                      color: '#6B4226',
-                      fontWeight: 'bold',
-                      mt: 2,
-                    }}
-                    onClick={() => handleAddToCart(item.pname)}  // Pass pname here
-                  >
+                <Box key={index}>
+                  <Typography>{item.pname}</Typography>
+                  {/* Other content */}
+                  <Button onClick={() => handleAddToCart(item.pname)}>
                     Add to Cart
                   </Button>
                 </Box>
               ))}
             </Box>
           ) : (
-            <Typography sx={{ textAlign: 'center', mt: 3 }}>
-              No products available.
-            </Typography>
+            <Typography>No products available.</Typography>
           )}
         </Box>
       )}
+
+      {/* Render Manager Dashboard if account type is manager */}
+      {activePage === 'manager' && <ManagerDashboard />}
     </Box>
   );
 }
