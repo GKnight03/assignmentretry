@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react';
 import LoginPage from '../login/page';
 import RegisterPage from '../register/page';
 import ManagerDashboard from '../manager/page'; // Import ManagerDashboard
+import Grid from '@mui/material/Grid'; // Import Grid
 
 export default function SmallApp() {
   const [activePage, setActivePage] = useState('home'); // Tracks active page
@@ -96,7 +97,7 @@ export default function SmallApp() {
           </Typography>
           <Button
             color="inherit"
-            onClick={() => setActivePage('home')}
+            onClick={() => setActivePage('smallapp')}
             sx={{ color: '#6B4226', fontWeight: 'bold' }}
           >
             Home
@@ -158,51 +159,96 @@ export default function SmallApp() {
       )}
 
       {activePage === 'login' && (
-        <LoginPage onLoginSuccess={(accType) => handleLoginSuccess(accType)} />
+        <LoginPage onLoginSuccess={handleLoginSuccess} />
       )}
 
       {activePage === 'register' && <RegisterPage />}
 
       {activePage === 'menu' && (
         <Box sx={{ p: 3 }}>
-          {/* Render the product menu */}
+          {/* Title */}
           <Typography
             variant="h5"
             sx={{
               color: '#6B4226',
               fontFamily: 'Comic Sans MS, sans-serif',
               textAlign: 'center',
+              fontWeight: 'bold',
             }}
           >
             Our Delicious Dough
           </Typography>
+
           {error && (
             <Typography color="red" sx={{ textAlign: 'center', mt: 2 }}>
               {error}
             </Typography>
           )}
+
           {loading ? (
             <Typography sx={{ textAlign: 'center', mt: 3 }}>
               Loading products...
             </Typography>
           ) : data && data.length > 0 ? (
-            <Box
-              sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: 2,
-                justifyContent: 'center',
-                mt: 3,
-              }}
-            >
+            <Grid container spacing={2} sx={{ justifyContent: 'center', mt: 3 }}>
               {data.map((item, index) => (
-                <Box key={index}>
-                  <Typography>{item.pname}</Typography>
-                  <Typography>${formatPrice(item.price)}</Typography> {/* Format price */}
-                  <Button onClick={() => handleAddToCart(item)}>Add to Cart</Button>
-                </Box>
+                <Grid item key={index} xs={12} sm={6} md={4}>
+                  <Box
+                    sx={{
+                      backgroundColor: '#FFF1F1',
+                      padding: 2,
+                      borderRadius: 2,
+                      boxShadow: 3,
+                      textAlign: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    {/* Product Name */}
+                    <Typography
+                      sx={{
+                        fontWeight: 'bold',
+                        color: '#6B4226',
+                        fontSize: '1.2rem',
+                        marginBottom: 1,
+                      }}
+                    >
+                      {item.pname}
+                    </Typography>
+
+                    {/* Product Price */}
+                    <Typography
+                      sx={{
+                        fontSize: '1rem',
+                        color: '#6B4226',
+                        marginBottom: 2,
+                      }}
+                    >
+                      ${formatPrice(item.price)}
+                    </Typography>
+
+                    {/* Add to Cart Button */}
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleAddToCart(item)}
+                      sx={{
+                        backgroundColor: '#FFB5E8',
+                        color: '#6B4226',
+                        fontWeight: 'bold',
+                        '&:hover': {
+                          backgroundColor: '#FF8D9E',
+                        },
+                      }}
+                    >
+                      Add to Cart
+                    </Button>
+                  </Box>
+                </Grid>
               ))}
-            </Box>
+            </Grid>
           ) : (
             <Typography>No products available.</Typography>
           )}
