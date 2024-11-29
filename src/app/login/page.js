@@ -36,7 +36,7 @@ export default function LoginPage() {
         if (data.user && data.user.acc_type === 'manager') {
           setTimeout(() => router.push('/manager'), 500); // Redirect to manager dashboard
         } else if (data.user && data.user.acc_type === 'customer') {
-          setTimeout(() => router.push('/smallapp'), 500); 
+          setTimeout(() => router.push('/smallapp'), 500); // Redirect to customer app
         } else {
           setError('Invalid account type.');
         }
