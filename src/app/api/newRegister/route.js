@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 
 export async function POST(req) {
-  const { email, password } = await req.json(); 
+  const { email, password } = await req.json(); // Removed username
   const uri = process.env.DB_ADDRESS;
   const client = new MongoClient(uri);
 
@@ -15,10 +15,10 @@ export async function POST(req) {
   try {
     await client.connect();
     const db = client.db(process.env.DB_NAME);
-    const users = db.collection('users');
+    const loginCollection = db.collection('login');
 
     // Check if the user already exists
-    const existingUser = await users.findOne({ email });
+    const existingUser = await loginCollection.findOne({ username: email });
     if (existingUser) {
       return new Response(
         JSON.stringify({ message: 'User with this email already exists.' }),
@@ -26,11 +26,15 @@ export async function POST(req) {
       );
     }
 
-    // Create the new user
-    const newUser = { email, password }; 
+    // Create the new user with acc_type 'customer'
+    const newUser = {
+      username: email,      // Store email as username
+      pass: password,       // Store password as 'pass'
+      acc_type: 'customer'  // Default account type
+    };
 
     // Insert new user into the database
-    await users.insertOne(newUser);
+    await loginCollection.insertOne(newUser);
 
     return new Response(
       JSON.stringify({ message: 'User registered successfully.' }),
