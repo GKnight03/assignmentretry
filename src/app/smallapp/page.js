@@ -10,8 +10,8 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import Login from './login';
-import Register from './register';
+import LoginPage from './login';
+import RegisterPage from './register';
 
 export default function SmallApp() {
   const [activePage, setActivePage] = useState('home');
