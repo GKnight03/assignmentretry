@@ -126,19 +126,6 @@ export default function SmallApp() {
         </Toolbar>
       </AppBar>
 
-      {activePage === 'home' && (
-        <Box sx={{ p: 3, textAlign: 'center' }}>
-          <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#FF0000' }}>
-            Welcome to the EVIL Krispy Kreme!
-          </Typography>
-          <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxJn-ntAT3js8lohog2uYJpVNWQP2nA4Iflg&s"
-            alt="Shaquille O'Neal"
-            style={{ width: '300px', height: 'auto', marginTop: '20px', borderRadius: '10px' }}
-          />
-        </Box>
-      )}
-
       {activePage === 'menu' && (
         <Box sx={{ p: 3 }}>
           <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold', color: '#FF0000' }}>
@@ -165,6 +152,18 @@ export default function SmallApp() {
               )}
             </Grid>
           )}
+        </Box>
+      )}
+      {activePage === 'home' && (
+        <Box sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#FF0000' }}>
+            Welcome to the EVIL Krispy Kreme!
+          </Typography>
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxJn-ntAT3js8lohog2uYJpVNWQP2nA4Iflg&s"
+            alt="Shaquille O'Neal"
+            style={{ width: '300px', height: 'auto', marginTop: '20px', borderRadius: '10px' }}
+          />
         </Box>
       )}
 
