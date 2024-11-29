@@ -1,8 +1,8 @@
-"use client"; // Mark this as a client-side component
+"use client"; // This ensures the component is client-side
 
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/router'; 
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -12,25 +12,30 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 
 export default function SmallApp() {
-  const [activePage, setActivePage] = useState('home'); 
+  const [activePage, setActivePage] = useState('home');
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [cart, setCart] = useState([]);
-  const [isClient, setIsClient] = useState(false);
+  const [isClient, setIsClient] = useState(false); // State to track client-side rendering
   const [weather, setWeather] = useState(null);
   const [weatherError, setWeatherError] = useState('');
-  const router = useRouter(); // Define the router instance
 
-  // Run only on the client side
   useEffect(() => {
-    setIsClient(true); // Ensure the component is mounted on the client side
-    if (isLoggedIn) {
-      fetchCartItems(); // Fetch cart items when logged in
-      fetchWeather(); // Fetch weather when logged in
+    setIsClient(true); // Mark as client-side when the component is mounted
+  }, []); // This will only run once when the component is mounted
+
+  const router = useRouter(); // This should only run on the client, so we check isClient
+
+  useEffect(() => {
+    if (isClient) {
+      if (isLoggedIn) {
+        fetchCartItems(); // Fetch cart items when logged in
+        fetchWeather(); // Fetch weather when logged in
+      }
     }
-  }, [isLoggedIn]);
+  }, [isClient, isLoggedIn]);
 
   // Fetch products when the "menu" page is active
   useEffect(() => {
@@ -127,7 +132,7 @@ export default function SmallApp() {
   }
 
   if (!isClient) {
-    return null; // Prevent rendering during SSR
+    return null; // Prevent rendering before the component is mounted on the client
   }
 
   return (
