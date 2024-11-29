@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import * as React from 'react';
 import { useState, useEffect } from 'react';
@@ -10,8 +10,6 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import LoginPage from './login';
-import RegisterPage from './register';
 
 export default function SmallApp() {
   const [activePage, setActivePage] = useState('home');
@@ -26,25 +24,29 @@ export default function SmallApp() {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
   useEffect(() => {
+    // Update the current time every second
     const timer = setInterval(() => {
       setCurrentDateTime(new Date());
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () => clearInterval(timer); // Cleanup interval on unmount
   }, []);
 
+  // Fetch cart items when logged in
   useEffect(() => {
     if (isLoggedIn) {
       fetchCartItems();
     }
   }, [isLoggedIn]);
 
+  // Fetch products for menu
   useEffect(() => {
     if (activePage === 'menu') {
       fetchProducts();
     }
   }, [activePage]);
 
+  // Fetch cart items
   async function fetchCartItems() {
     try {
       const response = await fetch('/api/getCartItems');
@@ -59,6 +61,7 @@ export default function SmallApp() {
     }
   }
 
+  // Fetch products for the menu
   async function fetchProducts() {
     setLoading(true);
     setError('');
@@ -76,6 +79,7 @@ export default function SmallApp() {
     }
   }
 
+  // Handle product add to cart
   function handleAddToCart(product) {
     const updatedCart = [...cart];
     const productIndex = updatedCart.findIndex((item) => item._id === product._id);
@@ -108,10 +112,10 @@ export default function SmallApp() {
           </Button>
           {!isLoggedIn ? (
             <>
-              <Button color="inherit" onClick={() => setActivePage('login')} sx={{ color: '#6B4226' }}>
+              <Button color="inherit" onClick={() => router.push('/login')} sx={{ color: '#6B4226' }}>
                 Sign In
               </Button>
-              <Button color="inherit" onClick={() => setActivePage('register')} sx={{ color: '#6B4226' }}>
+              <Button color="inherit" onClick={() => router.push('/register')} sx={{ color: '#6B4226' }}>
                 Sign Up
               </Button>
             </>
@@ -183,9 +187,6 @@ export default function SmallApp() {
           </Typography>
         </Box>
       )}
-
-      {activePage === 'login' && <Login />}
-      {activePage === 'register' && <Register />}
     </Box>
   );
 }
