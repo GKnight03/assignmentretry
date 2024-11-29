@@ -15,6 +15,7 @@ function CartPage() {
     fetch('/api/getCartItems')
       .then((res) => res.json())
       .then((data) => {
+        console.log('Cart Items:', data); // Log cart items to ensure they are being fetched
         setCartItems(data);
         const calculatedTotal = data.reduce((acc, item) => acc + item.price, 0);
         setTotal(calculatedTotal);
@@ -47,9 +48,9 @@ function CartPage() {
       const result = await response.json();
 
       if (response.ok) {
-        // Order placed successfully, redirect to thank you page
+        
         alert('Order placed successfully! A confirmation email has been sent.');
-        router.push('/thankyou'); 
+        router.push('/smallapp'); 
       } else {
         alert('Error occurred while placing the order: ' + result.message);
       }
@@ -58,6 +59,8 @@ function CartPage() {
       alert('There was an issue with the checkout process. Please try again later.');
     }
   };
+
+  console.log('Cart Items Length:', cartItems.length); 
 
   return (
     <Box sx={{ backgroundColor: '#FFF8E7', minHeight: '100vh', padding: 3 }}>

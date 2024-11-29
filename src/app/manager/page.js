@@ -13,10 +13,10 @@ import { useRouter } from 'next/navigation'; // For navigation
 
 export default function ManagerDashboard() {
   const [orderStats, setOrderStats] = useState(null);
-  const [orders, setOrders] = useState([]); // State to hold orders
+  const [orders, setOrders] = useState([]);
   const router = useRouter();
 
-  // Fetch order statistics and orders when the component mounts
+  // Fetch order statistics and orders
   useEffect(() => {
     // Fetch order statistics
     fetch('/api/getOrderStatistics')
@@ -31,13 +31,13 @@ export default function ManagerDashboard() {
       .catch((error) => console.error('Error fetching orders:', error));
   }, []);
 
-  // If orderStats or orders are not available yet, display a loading message
+  // Display a loading message if unavailable
   if (!orderStats || orders.length === 0) return <p>Loading...</p>;
 
-  // Log out handler (if needed for your app)
+  // Log out handler 
   const handleLogout = () => {
-    // Implement logout functionality (clearing session or tokens)
-    router.push('/login'); // Redirect to login page after logging out
+    
+    router.push('/login'); 
   };
 
   return (

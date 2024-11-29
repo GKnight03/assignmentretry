@@ -82,10 +82,10 @@ export default function RegisterPage() {
               borderRadius: '4px',
               '& .MuiOutlinedInput-root': {
                 '& fieldset': {
-                  borderColor: '#6B4226', // Evil Krispy Kreme theme color
+                  borderColor: '#6B4226', 
                 },
                 '&:hover fieldset': {
-                  borderColor: '#FFB5E8', // Light pink hover effect
+                  borderColor: '#FFB5E8', 
                 },
               },
             }}
@@ -119,11 +119,11 @@ export default function RegisterPage() {
             onClick={handleRegister}
             disabled={isLoading}
             sx={{
-              backgroundColor: '#FFB5E8', // Light pink
-              color: '#6B4226', // Evil Krispy Kreme dark color
+              backgroundColor: '#FFB5E8', 
+              color: '#6B4226',
               marginTop: 2,
               '&:hover': {
-                backgroundColor: '#d90166', // Darker pink on hover
+                backgroundColor: '#d90166', 
               },
             }}
           >
@@ -139,7 +139,7 @@ export default function RegisterPage() {
               sx={{
                 color: '#FFB5E8',
                 textDecoration: 'underline',
-                '&:hover': { backgroundColor: 'transparent' }, // Avoid hover background
+                '&:hover': { backgroundColor: 'transparent' }, 
               }}
             >
               Log In
