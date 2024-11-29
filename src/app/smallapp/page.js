@@ -1,8 +1,8 @@
-
+"use client"; // Mark this file as a Client Component
 
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router'; 
+import { useRouter } from 'next/navigation'; // Correct usage for App Directory
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -18,26 +18,19 @@ export default function SmallApp() {
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [cart, setCart] = useState([]);
-  const [isClient, setIsClient] = useState(false); // State to track client-side rendering
   const [weather, setWeather] = useState(null);
   const [weatherError, setWeatherError] = useState('');
+  const router = useRouter(); // Using next/navigation useRouter
 
+  // Fetch cart items when logged in
   useEffect(() => {
-    setIsClient(true); // Mark as client-side when the component is mounted
-  }, []); // This will only run once when the component is mounted
-
-  const router = useRouter(); // This should only run on the client, so we check isClient
-
-  useEffect(() => {
-    if (isClient) {
-      if (isLoggedIn) {
-        fetchCartItems(); // Fetch cart items when logged in
-        fetchWeather(); // Fetch weather when logged in
-      }
+    if (isLoggedIn) {
+      fetchCartItems();
+      fetchWeather();
     }
-  }, [isClient, isLoggedIn]);
+  }, [isLoggedIn]);
 
-  // Fetch products when the "menu" page is active
+  // Fetch products for menu
   useEffect(() => {
     if (activePage === 'menu') {
       fetchProducts();
@@ -59,7 +52,7 @@ export default function SmallApp() {
     }
   }
 
-  // Fetch products for menu
+  // Fetch products for the menu
   async function fetchProducts() {
     setLoading(true);
     setError('');
@@ -80,7 +73,9 @@ export default function SmallApp() {
   // Fetch weather
   async function fetchWeather() {
     try {
-      const response = await fetch('https://api.openweathermap.org/data/2.5/weather?q=YOUR_CITY&appid=YOUR_API_KEY');
+      const response = await fetch(
+        'https://api.openweathermap.org/data/2.5/weather?q=YOUR_CITY&appid=YOUR_API_KEY'
+      );
       const data = await response.json();
       if (response.ok) {
         setWeather(data);
@@ -96,7 +91,7 @@ export default function SmallApp() {
   function handleAddToCart(product) {
     const updatedCart = [...cart];
     const productIndex = updatedCart.findIndex((item) => item._id === product._id);
-    
+
     if (productIndex >= 0) {
       updatedCart[productIndex].quantity += 1;
     } else {
@@ -118,7 +113,7 @@ export default function SmallApp() {
       const result = await response.json();
       if (response.ok) {
         alert('Order confirmed!');
-        setCart([]); 
+        setCart([]);
       } else {
         alert('Checkout failed. Please try again.');
       }
@@ -131,19 +126,12 @@ export default function SmallApp() {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   }
 
-  if (!isClient) {
-    return null; // Prevent rendering before the component is mounted on the client
-  }
-
   return (
     <Box sx={{ backgroundColor: '#FFF8E7', minHeight: '100vh' }}>
       <AppBar position="static" sx={{ backgroundColor: '#FFB5E8' }}>
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1, color: '#6B4226' }}>
             🍩 KRISPY KREME
-          </Typography>
-          <Typography variant="body1" sx={{ color: '#6B4226' }}>
-            {weather ? `Weather: ${weather.main.temp}°C` : weatherError || 'Loading Weather...'}
           </Typography>
           <Button color="inherit" onClick={() => setActivePage('home')} sx={{ color: '#6B4226' }}>
             Home
@@ -171,7 +159,6 @@ export default function SmallApp() {
         </Toolbar>
       </AppBar>
 
-      {/* Render content based on active page */}
       {activePage === 'menu' && (
         <Box sx={{ p: 3 }}>
           <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
@@ -198,29 +185,6 @@ export default function SmallApp() {
               )}
             </Grid>
           )}
-        </Box>
-      )}
-
-      {cart.length > 0 && (
-        <Box sx={{ p: 3 }}>
-          <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
-            Your Cart
-          </Typography>
-          <Grid container spacing={2} sx={{ justifyContent: 'center', mt: 3 }}>
-            {cart.map((item, index) => (
-              <Grid item key={index} xs={12} sm={6} md={4}>
-                <Paper sx={{ padding: 2 }}>
-                  <Typography sx={{ fontWeight: 'bold' }}>{item.pname}</Typography>
-                  <Typography>Quantity: {item.quantity}</Typography>
-                </Paper>
-              </Grid>
-            ))}
-          </Grid>
-          <Box sx={{ textAlign: 'center', mt: 2 }}>
-            <Button variant="contained" color="primary" onClick={handleCheckout}>
-              Proceed to Checkout
-            </Button>
-          </Box>
         </Box>
       )}
     </Box>
