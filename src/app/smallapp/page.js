@@ -1,4 +1,4 @@
-"use client"; // Add this line to mark the component as client-side
+"use client"; // Mark this as a client-side component
 
 import * as React from 'react';
 import { useState, useEffect } from 'react';
@@ -22,7 +22,8 @@ export default function SmallApp() {
   const [weather, setWeather] = useState(null);
   const [weatherError, setWeatherError] = useState('');
   const router = useRouter(); // Define the router instance
-  
+
+  // Run only on the client side
   useEffect(() => {
     setIsClient(true); // Ensure the component is mounted on the client side
     if (isLoggedIn) {
@@ -126,7 +127,7 @@ export default function SmallApp() {
   }
 
   if (!isClient) {
-    return null; // Avoid errors during SSR
+    return null; // Prevent rendering during SSR
   }
 
   return (
