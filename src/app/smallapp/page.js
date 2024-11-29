@@ -18,15 +18,24 @@ export default function SmallApp() {
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [cart, setCart] = useState([]);
-  const [weather, setWeather] = useState(null);
-  const [weatherError, setWeatherError] = useState('');
   const router = useRouter(); // Using next/navigation useRouter
+
+  // Date and Time State
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
+
+  useEffect(() => {
+    // Update the current time every second
+    const timer = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer); // Cleanup interval on unmount
+  }, []);
 
   // Fetch cart items when logged in
   useEffect(() => {
     if (isLoggedIn) {
       fetchCartItems();
-      fetchWeather();
     }
   }, [isLoggedIn]);
 
@@ -70,23 +79,6 @@ export default function SmallApp() {
     }
   }
 
-  // Fetch weather
-  async function fetchWeather() {
-    try {
-      const response = await fetch(
-        'https://api.openweathermap.org/data/2.5/weather?q=YOUR_CITY&appid=YOUR_API_KEY'
-      );
-      const data = await response.json();
-      if (response.ok) {
-        setWeather(data);
-      } else {
-        setWeatherError('Failed to fetch weather');
-      }
-    } catch (err) {
-      setWeatherError('Failed to fetch weather');
-    }
-  }
-
   // Handle product add to cart
   function handleAddToCart(product) {
     const updatedCart = [...cart];
@@ -101,27 +93,6 @@ export default function SmallApp() {
     setCart(updatedCart);
   }
 
-  // Handle checkout
-  async function handleCheckout() {
-    try {
-      const response = await fetch('/api/checkout', {
-        method: 'POST',
-        body: JSON.stringify({ items: cart, totalAmount: calculateTotal() }),
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        alert('Order confirmed!');
-        setCart([]);
-      } else {
-        alert('Checkout failed. Please try again.');
-      }
-    } catch (err) {
-      alert('Error during checkout');
-    }
-  }
-
   function calculateTotal() {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   }
@@ -132,6 +103,9 @@ export default function SmallApp() {
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1, color: '#6B4226' }}>
             🍩 KRISPY KREME
+          </Typography>
+          <Typography variant="body2" sx={{ color: '#6B4226', marginRight: 2 }}>
+            {currentDateTime.toLocaleDateString()} {currentDateTime.toLocaleTimeString()}
           </Typography>
           <Button color="inherit" onClick={() => setActivePage('home')} sx={{ color: '#6B4226' }}>
             Home
@@ -153,7 +127,7 @@ export default function SmallApp() {
           <Button color="inherit" onClick={() => setActivePage('menu')} sx={{ color: '#6B4226' }}>
             Menu
           </Button>
-          <Button color="inherit" onClick={fetchCartItems} sx={{ color: '#6B4226' }}>
+          <Button color="inherit" onClick={() => setActivePage('cart')} sx={{ color: '#6B4226' }}>
             View Cart ({cart.length})
           </Button>
         </Toolbar>
@@ -185,6 +159,32 @@ export default function SmallApp() {
               )}
             </Grid>
           )}
+        </Box>
+      )}
+
+      {activePage === 'cart' && (
+        <Box sx={{ p: 3 }}>
+          <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
+            Your Cart
+          </Typography>
+          {cart.length === 0 ? (
+            <Typography sx={{ textAlign: 'center' }}>Your cart is empty.</Typography>
+          ) : (
+            <Grid container spacing={2} sx={{ justifyContent: 'center', mt: 3 }}>
+              {cart.map((item, index) => (
+                <Grid item key={index} xs={12} sm={6} md={4}>
+                  <Paper sx={{ padding: 2 }}>
+                    <Typography sx={{ fontWeight: 'bold' }}>{item.pname}</Typography>
+                    <Typography>Quantity: {item.quantity}</Typography>
+                    <Typography>Price: ${item.price * item.quantity}</Typography>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+          <Typography sx={{ textAlign: 'center', mt: 3, fontWeight: 'bold' }}>
+            Total: ${calculateTotal()}
+          </Typography>
         </Box>
       )}
     </Box>
