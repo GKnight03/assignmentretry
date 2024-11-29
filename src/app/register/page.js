@@ -5,14 +5,13 @@ import { useState } from 'react';
 import { TextField, Button, Typography, Box } from '@mui/material';
 
 export default function RegisterPage() {
-  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
   const handleRegister = async () => {
-    if (!username || !email || !password) {
+    if (!email || !password) {
       setError('All fields are required.');
       return;
     }
@@ -21,7 +20,7 @@ export default function RegisterPage() {
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
@@ -43,14 +42,6 @@ export default function RegisterPage() {
       {error && <Typography color="red" variant="body2">{error}</Typography>}
       {successMessage && <Typography color="green" variant="body2">{successMessage}</Typography>}
       
-      <TextField
-        label="Username"
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
       <TextField
         label="Email"
         variant="outlined"
