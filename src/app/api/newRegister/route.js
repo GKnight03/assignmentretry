@@ -1,13 +1,13 @@
 import { MongoClient } from 'mongodb';
 
 export async function POST(req) {
-  const { username, email, password } = await req.json();
+  const { email, password } = await req.json(); 
   const uri = process.env.DB_ADDRESS;
   const client = new MongoClient(uri);
 
-  if (!username || !email || !password) {
+  if (!email || !password) {
     return new Response(
-      JSON.stringify({ message: 'All fields are required' }),
+      JSON.stringify({ message: 'Email and password are required.' }),
       { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
@@ -21,23 +21,25 @@ export async function POST(req) {
     const existingUser = await users.findOne({ email });
     if (existingUser) {
       return new Response(
-        JSON.stringify({ message: 'User with this email already exists' }),
+        JSON.stringify({ message: 'User with this email already exists.' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
     // Create the new user
-    const newUser = { username, email, password }; // In production, you should hash the password
+    const newUser = { email, password }; 
+
+    // Insert new user into the database
     await users.insertOne(newUser);
 
     return new Response(
-      JSON.stringify({ message: 'User registered successfully' }),
+      JSON.stringify({ message: 'User registered successfully.' }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
     console.error('Error registering user:', error);
     return new Response(
-      JSON.stringify({ message: 'Registration failed' }),
+      JSON.stringify({ message: 'Registration failed.' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   } finally {
