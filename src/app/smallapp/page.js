@@ -90,6 +90,43 @@ export default function SmallApp() {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   }
 
+  // Function to handle order checkout
+  const handleCheckout = async () => {
+    if (cart.length === 0) {
+      alert('Your cart is empty!');
+      return;
+    }
+
+    const orderData = {
+      items: cart,
+      totalAmount: calculateTotal(),
+    };
+
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+      const result = await response.json();
+
+      if (response.ok) {
+        // Redirect to the home page
+        router.push('/');
+
+        // Show a thank you popup
+        alert('Thank you for your order! Your items will be ready soon.');
+      } else {
+        alert('Error: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Error during checkout:', error);
+      alert('There was an issue with placing your order. Please try again.');
+    }
+  };
+
   return (
     <Box sx={{ backgroundColor: '#3E3B3D', minHeight: '100vh' }}>
       <AppBar position="static" sx={{ backgroundColor: '#2A2A2A' }}>
@@ -154,6 +191,7 @@ export default function SmallApp() {
           )}
         </Box>
       )}
+
       {activePage === 'home' && (
         <Box sx={{ p: 3, textAlign: 'center' }}>
           <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#FF0000' }}>
@@ -190,6 +228,18 @@ export default function SmallApp() {
           <Typography sx={{ textAlign: 'center', mt: 3, fontWeight: 'bold', color: '#FF0000' }}>
             Total: ${calculateTotal()}
           </Typography>
+          
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: '#FF0000',
+              color: '#FFFFFF',
+              marginTop: 3,
+            }}
+            onClick={handleCheckout}
+          >
+            Place Order
+          </Button>
         </Box>
       )}
     </Box>
