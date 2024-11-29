@@ -1,4 +1,4 @@
-"use client"; // Mark this file as a Client Component
+"use client";
 
 import * as React from 'react';
 import { useState, useEffect } from 'react';
@@ -10,6 +10,8 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
+import Login from './login/page';
+import Register from './register/page';
 
 export default function SmallApp() {
   const [activePage, setActivePage] = useState('home');
@@ -18,35 +20,31 @@ export default function SmallApp() {
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [cart, setCart] = useState([]);
-  const router = useRouter(); // Using next/navigation useRouter
+  const router = useRouter();
 
   // Date and Time State
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
   useEffect(() => {
-    // Update the current time every second
     const timer = setInterval(() => {
       setCurrentDateTime(new Date());
     }, 1000);
 
-    return () => clearInterval(timer); // Cleanup interval on unmount
+    return () => clearInterval(timer);
   }, []);
 
-  // Fetch cart items when logged in
   useEffect(() => {
     if (isLoggedIn) {
       fetchCartItems();
     }
   }, [isLoggedIn]);
 
-  // Fetch products for menu
   useEffect(() => {
     if (activePage === 'menu') {
       fetchProducts();
     }
   }, [activePage]);
 
-  // Fetch cart items
   async function fetchCartItems() {
     try {
       const response = await fetch('/api/getCartItems');
@@ -61,7 +59,6 @@ export default function SmallApp() {
     }
   }
 
-  // Fetch products for the menu
   async function fetchProducts() {
     setLoading(true);
     setError('');
@@ -79,7 +76,6 @@ export default function SmallApp() {
     }
   }
 
-  // Handle product add to cart
   function handleAddToCart(product) {
     const updatedCart = [...cart];
     const productIndex = updatedCart.findIndex((item) => item._id === product._id);
@@ -187,6 +183,9 @@ export default function SmallApp() {
           </Typography>
         </Box>
       )}
+
+      {activePage === 'login' && <Login />}
+      {activePage === 'register' && <Register />}
     </Box>
   );
 }

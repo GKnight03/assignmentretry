@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { Box, Button, TextField, Typography } from '@mui/material';
+import { Box, Button, TextField, Typography, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter(); // for navigation after registration
 
   const handleRegister = async () => {
@@ -18,24 +19,32 @@ export default function RegisterPage() {
       return;
     }
 
+    setIsLoading(true);
+    setError('');
+    setSuccessMessage('');
+
     try {
-      const response = await fetch('/api/register', {
+      const response = await fetch('/api/newRegister', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
+
       if (response.ok) {
-        setSuccessMessage('Registration successful! You can now log in.');
+        setSuccessMessage('Registration successful! Redirecting to login...');
         setError('');
-        // Redirect to login page after successful registration
-        setTimeout(() => router.push('/login'), 2000); // Optional redirect after 2 seconds
+        setTimeout(() => {
+          router.push('/login'); // Redirect to login after 2 seconds
+        }, 2000);
       } else {
         setError(data.message || 'Registration failed. Please try again.');
       }
     } catch (error) {
-      setError('Error occurred while registering. Please try again.');
+      setError('An error occurred during registration. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -46,11 +55,14 @@ export default function RegisterPage() {
           🍩 KRISPY KREME Registration
         </Typography>
 
+        {/* Display Error Message */}
         {error && (
           <Typography variant="body2" color="error" sx={{ textAlign: 'center', marginTop: 2 }}>
             {error}
           </Typography>
         )}
+
+        {/* Display Success Message */}
         {successMessage && (
           <Typography variant="body2" color="success" sx={{ textAlign: 'center', marginTop: 2 }}>
             {successMessage}
@@ -66,6 +78,7 @@ export default function RegisterPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             sx={{ backgroundColor: '#fff', borderRadius: '4px' }}
+            required
           />
           <TextField
             label="Password"
@@ -76,11 +89,13 @@ export default function RegisterPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             sx={{ backgroundColor: '#fff', borderRadius: '4px' }}
+            required
           />
           <Button
             variant="contained"
             fullWidth
             onClick={handleRegister}
+            disabled={isLoading}
             sx={{
               backgroundColor: '#FFB5E8',
               color: '#6B4226',
@@ -90,7 +105,7 @@ export default function RegisterPage() {
               },
             }}
           >
-            Register
+            {isLoading ? <CircularProgress size={24} sx={{ color: '#6B4226' }} /> : 'Register'}
           </Button>
         </form>
 

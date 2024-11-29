@@ -1,39 +1,52 @@
 'use client';
 
-import { useState } from 'react'; // useState is now safe to use
-import { useRouter } from 'next/navigation'; // Use 'next/navigation' instead of 'next/router'
-import { Box, Button, TextField, Typography } from '@mui/material';
+import { useState } from 'react';
+import { Box, Button, TextField, Typography, CircularProgress } from '@mui/material';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter(); // This is the correct way to handle navigation in Next.js 13
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Send login request
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    if (!email || !password) {
+      setError('Both fields are required.');
+      return;
+    }
 
-    const data = await response.json();
+    setIsLoading(true);
+    setError('');
 
-    if (data.success) {
-      if (data.user && data.user.acc_type === 'manager') {
-        // Redirect to manager dashboard
-        router.push('/manager');
-      } else if (data.user && data.user.acc_type === 'customer') {
-        // Redirect to the menu for customers
-        router.push('/menu');
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Check user type and redirect accordingly
+        if (data.user && data.user.acc_type === 'manager') {
+          setTimeout(() => router.push('/manager'), 500); // Redirect to manager dashboard
+        } else if (data.user && data.user.acc_type === 'customer') {
+          setTimeout(() => router.push('/menu'), 500); // Redirect to menu for customers
+        } else {
+          setError('Invalid account type.');
+        }
       } else {
-        setError('Invalid account type.');
+        setError(data.message || 'Invalid email or password.');
       }
-    } else {
-      setError(data.message || 'Invalid email or password.');
+    } catch (error) {
+      setError('An error occurred while logging in. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -59,6 +72,7 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             sx={{ backgroundColor: '#fff', borderRadius: '4px' }}
+            required
           />
           <TextField
             label="Password"
@@ -69,11 +83,13 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             sx={{ backgroundColor: '#fff', borderRadius: '4px' }}
+            required
           />
           <Button
             type="submit"
             variant="contained"
             fullWidth
+            disabled={isLoading}
             sx={{
               backgroundColor: '#FFB5E8',
               color: '#6B4226',
@@ -83,7 +99,7 @@ export default function LoginPage() {
               },
             }}
           >
-            Log In
+            {isLoading ? <CircularProgress size={24} sx={{ color: '#6B4226' }} /> : 'Log In'}
           </Button>
         </form>
 
