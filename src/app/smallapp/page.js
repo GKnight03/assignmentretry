@@ -56,8 +56,17 @@ export default function SmallApp() {
 
   // Calculate total cost
   function calculateTotal() {
-    return cart.reduce((total, item) => total + item.price, 0).toFixed(2); // Assuming products have a 'price' field
+    return cart.reduce((total, item) => total + parseFloat(item.price), 0).toFixed(2); // Assuming products have a 'price' field
   }
+
+  // Function to safely format the price
+  const formatPrice = (price) => {
+    const numericPrice = parseFloat(price); // Convert to number
+    if (!isNaN(numericPrice)) {
+      return numericPrice.toFixed(2); // Return formatted price to 2 decimal places
+    }
+    return 'Invalid Price'; // Handle invalid price case
+  };
 
   // Handle login success
   function handleLoginSuccess(accType) {
@@ -189,7 +198,7 @@ export default function SmallApp() {
               {data.map((item, index) => (
                 <Box key={index}>
                   <Typography>{item.pname}</Typography>
-                  <Typography>${item.price.toFixed(2)}</Typography>
+                  <Typography>${formatPrice(item.price)}</Typography> {/* Format price */}
                   <Button onClick={() => handleAddToCart(item)}>Add to Cart</Button>
                 </Box>
               ))}
