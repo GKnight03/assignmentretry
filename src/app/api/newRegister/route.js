@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { MongoClient } from 'mongodb';
 
-// Handle POST request for user registration
+// Vercel handles this as a serverless function
 export async function POST(req) {
   const uri = process.env.DB_ADDRESS;
   const client = new MongoClient(uri);
-  
+
   try {
     const { email, password } = await req.json();
 
@@ -20,7 +20,7 @@ export async function POST(req) {
     const db = client.db(process.env.DB_NAME);
     const loginCollection = db.collection('login');
 
-    // Check if the user already exists
+    // Check if user already exists
     const existingUser = await loginCollection.findOne({ username: email });
     if (existingUser) {
       return NextResponse.json(
@@ -29,7 +29,7 @@ export async function POST(req) {
       );
     }
 
-    // Insert new user with acc_type 'customer'
+    // Insert new user with default 'customer' acc_type
     const newUser = {
       username: email,
       pass: password,
@@ -42,7 +42,7 @@ export async function POST(req) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error registering user:', error);
+    console.error('Registration error:', error);
     return NextResponse.json(
       { message: 'Registration failed.' },
       { status: 500 }
