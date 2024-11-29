@@ -16,7 +16,10 @@ export default function ManagerDashboard() {
   useEffect(() => {
     fetch('/api/getCartItems') // Fetching items from shopping_cart collection
       .then((res) => res.json())
-      .then((data) => setCartItems(data))
+      .then((data) => {
+        console.log(data);  // Log the fetched data to check its structure
+        setCartItems(data);
+      })
       .catch((error) => console.error('Error fetching cart items:', error));
   }, []);
 
@@ -52,8 +55,8 @@ export default function ManagerDashboard() {
             <tbody>
               {cartItems.map((item, i) => (
                 <tr key={i} style={{ backgroundColor: '#333' }}>
-                  <td>{item.pname}</td>  {/* Product Name */}
-                  <td>{item.quantity}</td>  {/* Quantity */}
+                  <td>{item.pname}</td>  {/* Ensure pname is correctly displayed */}
+                  <td>{item.quantity}</td>  {/* Ensure quantity is correctly displayed */}
                 </tr>
               ))}
             </tbody>

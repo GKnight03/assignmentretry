@@ -27,6 +27,9 @@ export async function GET() {
       },
     ]).toArray();
 
+    // Log the fetched items
+    console.log(items);
+
     return new Response(JSON.stringify(items), {
       headers: { 'Content-Type': 'application/json' },
     });
