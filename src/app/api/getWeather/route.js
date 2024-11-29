@@ -3,7 +3,7 @@ export async function GET(req, res) {
 
     try {
         // Use the native `fetch` available in Next.js
-        const weatherResponse = await fetch('http://api.weatherapi.com/v1/current.json?key=7e1ff16f76c649fb832184436242510&q=Dublin&aqi=no');
+        const weatherResponse = await fetch('https://api.weatherapi.com/v1/current.json?key=7e1ff16f76c649fb832184436242510&q=Dublin&aqi=no');
         
         if (!weatherResponse.ok) {
             throw new Error('Failed to fetch weather data');
