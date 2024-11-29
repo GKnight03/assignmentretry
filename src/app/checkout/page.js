@@ -4,10 +4,12 @@ import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import { useRouter } from 'next/navigation';
 
 function CartPage() {
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
     fetch('/api/getCartItems')
@@ -20,24 +22,70 @@ function CartPage() {
       .catch((error) => console.error('Error fetching cart items:', error));
   }, []);
 
-  const handleCheckout = () => {
-    // Here you can add the logic to handle the checkout process, like submitting the order to the backend
-    alert('Order placed successfully!');
+  const handleCheckout = async () => {
+    // Check if there are items in the cart
+    if (cartItems.length === 0) {
+      alert('Your cart is empty!');
+      return;
+    }
+
+    // Prepare the order details to send to the server
+    const orderData = {
+      items: cartItems,
+      totalAmount: total,
+    };
+
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Order placed successfully, redirect to thank you page
+        alert('Order placed successfully! A confirmation email has been sent.');
+        router.push('/thankyou'); // Optionally, you can redirect to a Thank You page
+      } else {
+        alert('Error occurred while placing the order: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Error during checkout:', error);
+      alert('There was an issue with the checkout process. Please try again later.');
+    }
   };
 
   return (
-    <Box sx={{ padding: 3 }}>
-      <Typography variant="h4" sx={{ textAlign: 'center', color: '#6B4226' }}>
-        Your Shopping Cart
-      </Typography>
-
-      {cartItems.length === 0 ? (
-        <Typography sx={{ textAlign: 'center', color: '#6B4226', mt: 3 }}>
-          Your cart is empty.
+    <Box sx={{ backgroundColor: '#FFF8E7', minHeight: '100vh', padding: 3 }}>
+      <Box sx={{ maxWidth: 600, margin: 'auto', padding: 2 }}>
+        <Typography
+          variant="h4"
+          sx={{ textAlign: 'center', color: '#6B4226', fontWeight: 'bold' }}
+        >
+          🍩 Your Shopping Cart
         </Typography>
-      ) : (
-        <Box sx={{ mt: 3 }}>
-          <ul>
+
+        {cartItems.length === 0 ? (
+          <Typography sx={{ textAlign: 'center', color: '#6B4226', mt: 3 }}>
+            Your cart is empty.
+          </Typography>
+        ) : (
+          <Box sx={{ mt: 3 }}>
+            <Box
+              sx={{
+                borderBottom: '1px solid #ddd',
+                paddingBottom: 2,
+                paddingTop: 1,
+                marginBottom: 2,
+                textAlign: 'center',
+              }}
+            >
+              <Typography sx={{ color: '#6B4226', fontWeight: 'bold' }}>Items</Typography>
+            </Box>
             {cartItems.map((item, index) => (
               <Box
                 key={index}
@@ -46,29 +94,34 @@ function CartPage() {
                   justifyContent: 'space-between',
                   padding: 1,
                   borderBottom: '1px solid #ddd',
+                  marginBottom: 2,
                 }}
               >
                 <Typography sx={{ color: '#6B4226' }}>{item.pname}</Typography>
                 <Typography sx={{ color: '#6B4226' }}>${item.price.toFixed(2)}</Typography>
               </Box>
             ))}
-          </ul>
 
-          <Box sx={{ mt: 3, textAlign: 'center' }}>
-            <Typography variant="h6" sx={{ color: '#6B4226' }}>
-              Total: ${total.toFixed(2)}
-            </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              sx={{ mt: 2 }}
-              onClick={handleCheckout}
-            >
-              Proceed to Checkout
-            </Button>
+            <Box sx={{ mt: 3, textAlign: 'center' }}>
+              <Typography variant="h6" sx={{ color: '#6B4226' }}>
+                Total: ${total.toFixed(2)}
+              </Typography>
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: '#FFB5E8',
+                  color: '#6B4226',
+                  mt: 3,
+                  '&:hover': { backgroundColor: '#FF9CE8' },
+                }}
+                onClick={handleCheckout}
+              >
+                Proceed to Checkout
+              </Button>
+            </Box>
           </Box>
-        </Box>
-      )}
+        )}
+      </Box>
     </Box>
   );
 }

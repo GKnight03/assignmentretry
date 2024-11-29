@@ -18,8 +18,18 @@ export default function SmallApp() {
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
   const [cart, setCart] = useState([]); // Track items in the shopping cart
-
+  const [isClient, setIsClient] = useState(false); // Track if we are on the client side
+  const [weather, setWeather] = useState(null); // Weather state
+  const [weatherError, setWeatherError] = useState('');
   const router = useRouter();
+
+  useEffect(() => {
+    setIsClient(true); // Set state to true once the component mounts
+    if (isLoggedIn) {
+      fetchCartItems(); // Fetch cart items when logged in
+      fetchWeather(); // Fetch weather when logged in
+    }
+  }, [isLoggedIn]);
 
   // Fetch products when the "menu" page is active
   useEffect(() => {
@@ -61,9 +71,67 @@ export default function SmallApp() {
     }
   }
 
+  // Fetch weather
+  async function fetchWeather() {
+    try {
+      const response = await fetch('https://api.openweathermap.org/data/2.5/weather?q=YOUR_CITY&appid=YOUR_API_KEY');
+      const data = await response.json();
+      if (response.ok) {
+        setWeather(data);
+      } else {
+        setWeatherError('Failed to fetch weather');
+      }
+    } catch (err) {
+      setWeatherError('Failed to fetch weather');
+    }
+  }
+
   // Function to handle product add to cart
   function handleAddToCart(product) {
-    // Add to cart logic here
+    const updatedCart = [...cart];
+    const productIndex = updatedCart.findIndex((item) => item._id === product._id);
+    
+    if (productIndex >= 0) {
+      // Product already in the cart, update quantity
+      updatedCart[productIndex].quantity += 1;
+    } else {
+      // New product, add to cart
+      updatedCart.push({ ...product, quantity: 1 });
+    }
+
+    setCart(updatedCart);
+  }
+
+  // Handle checkout
+  async function handleCheckout() {
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        body: JSON.stringify({ items: cart, totalAmount: calculateTotal() }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        alert('Order confirmed!');
+        setCart([]); // Empty the cart after successful checkout
+      } else {
+        alert('Checkout failed. Please try again.');
+      }
+    } catch (err) {
+      alert('Error during checkout');
+    }
+  }
+
+  function calculateTotal() {
+    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  }
+
+  if (!isClient) {
+    // Return null or a loading spinner during server-side rendering
+    return null;
   }
 
   return (
@@ -72,6 +140,9 @@ export default function SmallApp() {
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1, color: '#6B4226' }}>
             🍩 KRISPY KREME
+          </Typography>
+          <Typography variant="body1" sx={{ color: '#6B4226' }}>
+            {weather ? `Weather: ${weather.main.temp}°C` : weatherError || 'Loading Weather...'}
           </Typography>
           <Button color="inherit" onClick={() => setActivePage('home')} sx={{ color: '#6B4226' }}>
             Home
@@ -148,6 +219,11 @@ export default function SmallApp() {
               </Grid>
             ))}
           </Grid>
+          <Box sx={{ textAlign: 'center', mt: 2 }}>
+            <Button variant="contained" color="primary" onClick={handleCheckout}>
+              Proceed to Checkout
+            </Button>
+          </Box>
         </Box>
       )}
     </Box>

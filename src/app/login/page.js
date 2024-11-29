@@ -2,6 +2,7 @@
 
 import { useState } from 'react'; // useState is now safe to use
 import { useRouter } from 'next/navigation'; // Use 'next/navigation' instead of 'next/router'
+import { Box, Button, TextField, Typography } from '@mui/material';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -21,8 +22,6 @@ export default function LoginPage() {
 
     const data = await response.json();
 
-    console.log(data); // Check the response to ensure it includes the correct user data
-
     if (data.success) {
       if (data.user && data.user.acc_type === 'manager') {
         // Redirect to manager dashboard
@@ -39,21 +38,67 @@ export default function LoginPage() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button type="submit">Log In</button>
-      {error && <p>{error}</p>}
-    </form>
+    <Box sx={{ backgroundColor: '#FFF8E7', minHeight: '100vh' }}>
+      <Box sx={{ maxWidth: 400, margin: 'auto', padding: 2, mt: 5 }}>
+        <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold', color: '#6B4226' }}>
+          🍩 KRISPY KREME Login
+        </Typography>
+
+        {error && (
+          <Typography variant="body2" color="error" sx={{ textAlign: 'center', marginTop: 2 }}>
+            {error}
+          </Typography>
+        )}
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', marginTop: 3 }}>
+          <TextField
+            label="Email"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            sx={{ backgroundColor: '#fff', borderRadius: '4px' }}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            sx={{ backgroundColor: '#fff', borderRadius: '4px' }}
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{
+              backgroundColor: '#FFB5E8',
+              color: '#6B4226',
+              marginTop: 2,
+              '&:hover': {
+                backgroundColor: '#FF9CE8',
+              },
+            }}
+          >
+            Log In
+          </Button>
+        </form>
+
+        <Box sx={{ textAlign: 'center', marginTop: 3 }}>
+          <Typography variant="body2" sx={{ color: '#6B4226' }}>
+            Don't have an account?{' '}
+            <Button
+              onClick={() => router.push('/register')}
+              sx={{ color: '#FFB5E8', textDecoration: 'underline' }}
+            >
+              Sign Up
+            </Button>
+          </Typography>
+        </Box>
+      </Box>
+    </Box>
   );
 }

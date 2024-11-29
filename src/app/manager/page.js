@@ -13,18 +13,26 @@ import { useRouter } from 'next/navigation'; // For navigation
 
 export default function ManagerDashboard() {
   const [orderStats, setOrderStats] = useState(null);
+  const [orders, setOrders] = useState([]); // State to hold orders
   const router = useRouter();
 
-  // Fetch order statistics when the component mounts
+  // Fetch order statistics and orders when the component mounts
   useEffect(() => {
-    fetch('/api/getOrderStatistics') // This endpoint should return statistics about orders
+    // Fetch order statistics
+    fetch('/api/getOrderStatistics')
       .then((res) => res.json())
       .then((data) => setOrderStats(data))
       .catch((error) => console.error('Error fetching order statistics:', error));
+
+    // Fetch order details
+    fetch('/api/orders')
+      .then((res) => res.json())
+      .then((data) => setOrders(data))
+      .catch((error) => console.error('Error fetching orders:', error));
   }, []);
 
-  // If orderStats is not available yet, display a loading message
-  if (!orderStats) return <p>Loading order statistics...</p>;
+  // If orderStats or orders are not available yet, display a loading message
+  if (!orderStats || orders.length === 0) return <p>Loading...</p>;
 
   // Log out handler (if needed for your app)
   const handleLogout = () => {
@@ -58,6 +66,32 @@ export default function ManagerDashboard() {
           <Typography variant="h6">
             Total Cost: ${orderStats.totalCost.toFixed(2)}
           </Typography>
+        </Box>
+      </Box>
+
+      <Box sx={{ p: 3, mt: 3 }}>
+        <Typography variant="h5" color="#ff0000" sx={{ textAlign: 'center', mb: 2 }}>
+          All Orders
+        </Typography>
+
+        {/* Render the list of orders */}
+        <Box sx={{ overflowY: 'scroll', maxHeight: '400px', bgcolor: '#333', color: '#fff', padding: 2, borderRadius: 2 }}>
+          {orders.map((order) => (
+            <Box key={order._id} sx={{ mb: 2, padding: 2, borderBottom: '1px solid #fff' }}>
+              <Typography variant="h6">Order ID: {order._id}</Typography>
+              <Typography variant="body1">Customer: {order.customerEmail}</Typography>
+              <Typography variant="body1">Placed at: {new Date(order.createdAt).toLocaleString()}</Typography>
+              <Typography variant="body2">Status: {order.status}</Typography>
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="h6">Items:</Typography>
+                {order.items.map((item, index) => (
+                  <Typography key={index} variant="body2">
+                    {item.pname} - ${item.price.toFixed(2)}
+                  </Typography>
+                ))}
+              </Box>
+            </Box>
+          ))}
         </Box>
       </Box>
     </Box>

@@ -7,15 +7,20 @@ export async function GET() {
   try {
     await client.connect();
     const db = client.db(process.env.DB_NAME);
-    const ordersCollection = db.collection('orders'); // Assuming orders collection stores all orders
+    const ordersCollection = db.collection('orders');
 
     // Aggregate the total orders count and total cost
     const stats = await ordersCollection.aggregate([
       {
+        $addFields: {
+          totalCost: { $sum: "$items.price" } // If items have prices, sum them
+        }
+      },
+      {
         $group: {
           _id: null,
           totalOrders: { $sum: 1 },
-          totalCost: { $sum: "$totalCost" } // Assuming each order document has a field `totalCost`
+          totalCost: { $sum: "$totalCost" } // Sum of `totalCost` calculated from items
         }
       }
     ]).toArray();
