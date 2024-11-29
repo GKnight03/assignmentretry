@@ -9,7 +9,23 @@ export async function GET() {
     const db = client.db(process.env.DB_NAME);
     const collection = db.collection('shopping_cart');
 
-    const items = await collection.find({}).toArray();
+    // Fetch items grouped by product name (pname) and username
+    const items = await collection.aggregate([
+      {
+        $group: {
+          _id: { pname: "$pname", username: "$username" },
+          quantity: { $sum: "$quantity" },  // Sum the quantity of the same product for a user
+        },
+      },
+      {
+        $project: {
+          pname: "$_id.pname",
+          username: "$_id.username",
+          quantity: 1,
+          _id: 0,
+        },
+      },
+    ]).toArray();
 
     return new Response(JSON.stringify(items), {
       headers: { 'Content-Type': 'application/json' },

@@ -45,7 +45,6 @@ export default function ManagerDashboard() {
           <table style={{ width: '100%', color: '#fff' }}>
             <thead>
               <tr>
-                <th style={{ color: '#ff0000' }}>Product ID</th>
                 <th style={{ color: '#ff0000' }}>Product Name</th>
                 <th style={{ color: '#ff0000' }}>Quantity</th>
               </tr>
@@ -53,9 +52,8 @@ export default function ManagerDashboard() {
             <tbody>
               {cartItems.map((item, i) => (
                 <tr key={i} style={{ backgroundColor: '#333' }}>
-                  <td>{item._id}</td>
-                  <td>{item.product_name}</td>
-                  <td>{item.quantity}</td>
+                  <td>{item.pname}</td>  {/* Product Name */}
+                  <td>{item.quantity}</td>  {/* Quantity */}
                 </tr>
               ))}
             </tbody>
