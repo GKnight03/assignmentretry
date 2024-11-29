@@ -109,7 +109,7 @@ export default function SmallApp() {
             Welcome to EVIL Krispy Kreme!
           </Typography>
           <img
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Shaquille_O%27Neal_2019.jpg/800px-Shaquille_O%27Neal_2019.jpg"
+            src="https://i.ytimg.com/vi/K41lo4Efr7I/maxresdefault.jpg"
             alt="Shaquille O'Neal"
             style={{ width: '300px', height: 'auto', marginTop: '20px', borderRadius: '10px' }}
           />
