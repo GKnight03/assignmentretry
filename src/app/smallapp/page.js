@@ -18,7 +18,7 @@ export default function SmallApp() {
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [cart, setCart] = useState([]);
-  const [weatherData, setWeatherData] = useState(null);  // State to store weather data
+  const [weatherData, setWeatherData] = useState(null);  
   const router = useRouter();
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
@@ -42,11 +42,10 @@ export default function SmallApp() {
     }
   }, [activePage]);
 
- 
   useEffect(() => {
     async function fetchWeather() {
       try {
-        const weatherResponse = await fetch('http://api.weatherapi.com/v1/current.json?key=7e1ff16f76c649fb832184436242510&q=Dublin&aqi=no');
+        const weatherResponse = await fetch('https://api.weatherapi.com/v1/current.json?key=7e1ff16f76c649fb832184436242510&q=Dublin&aqi=no');
         if (!weatherResponse.ok) {
           throw new Error('Failed to fetch weather data');
         }
@@ -212,6 +211,20 @@ export default function SmallApp() {
           <Typography sx={{ textAlign: 'center', color: '#FF0000', fontWeight: 'bold', mt: 3 }}>
             Total: ${calculateTotal()}
           </Typography>
+
+          {/* Place Order Button */}
+          <Box sx={{ textAlign: 'center', mt: 3 }}>
+            <Button
+              variant="contained"
+              onClick={() => {
+                alert('Order Placed!');  
+                
+              }}
+              sx={{ backgroundColor: '#FF0000' }}
+            >
+              Place Order
+            </Button>
+          </Box>
         </Box>
       )}
     </Box>
