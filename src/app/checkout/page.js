@@ -49,7 +49,7 @@ function CartPage() {
       if (response.ok) {
         // Order placed successfully, redirect to thank you page
         alert('Order placed successfully! A confirmation email has been sent.');
-        router.push('/thankyou'); // Optionally, you can redirect to a Thank You page
+        router.push('/thankyou'); 
       } else {
         alert('Error occurred while placing the order: ' + result.message);
       }
@@ -64,13 +64,13 @@ function CartPage() {
       <Box sx={{ maxWidth: 600, margin: 'auto', padding: 2 }}>
         <Typography
           variant="h4"
-          sx={{ textAlign: 'center', color: '#6B4226', fontWeight: 'bold' }}
+          sx={{ textAlign: 'center', color: '#d90166', fontWeight: 'bold' }}
         >
           🍩 Your Shopping Cart
         </Typography>
 
         {cartItems.length === 0 ? (
-          <Typography sx={{ textAlign: 'center', color: '#6B4226', mt: 3 }}>
+          <Typography sx={{ textAlign: 'center', color: '#d90166', mt: 3 }}>
             Your cart is empty.
           </Typography>
         ) : (
@@ -103,7 +103,7 @@ function CartPage() {
             ))}
 
             <Box sx={{ mt: 3, textAlign: 'center' }}>
-              <Typography variant="h6" sx={{ color: '#6B4226' }}>
+              <Typography variant="h6" sx={{ color: '#d90166' }}>
                 Total: ${total.toFixed(2)}
               </Typography>
               <Button
@@ -112,11 +112,11 @@ function CartPage() {
                   backgroundColor: '#FFB5E8',
                   color: '#6B4226',
                   mt: 3,
-                  '&:hover': { backgroundColor: '#FF9CE8' },
+                  '&:hover': { backgroundColor: '#d90166' },
                 }}
                 onClick={handleCheckout}
               >
-                Proceed to Checkout
+                Place Order
               </Button>
             </Box>
           </Box>
