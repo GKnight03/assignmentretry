@@ -1,38 +1,58 @@
-import { MongoClient } from 'mongodb';
+'use client';
 
-export async function POST(req) {
-  try {
-    const { email, password } = await req.json(); // Get email and password from the request body
+import { useState } from 'react'; // useState is now safe to use
+import { useRouter } from 'next/navigation'; // Use 'next/navigation' instead of 'next/router'
 
-    // Connect to MongoDB
-    const url = process.env.DB_ADDRESS; // MongoDB connection string from environment variable
-    const client = new MongoClient(url);
-    await client.connect();
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const router = useRouter(); // This is the correct way to handle navigation in Next.js 13
 
-    const db = client.db(process.env.DB_NAME); // Use environment variable for database name
-    const collection = db.collection('login'); // The login collection
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-    // Find the user by email
-    const user = await collection.findOne({ username: email });
+    // Simulate login process and check if the user is a customer or manager
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
-    if (user && user.pass === password) {
-      // Authentication successful, return user details and account type
-      return new Response(
-        JSON.stringify({ success: true, acc_type: user.acc_type }), // Returning acc_type
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      );
+    const data = await response.json();
+
+    // Log the API response to see what data looks like
+    console.log(data);
+
+    if (data.success) {
+      if (data.user && data.user.acc_type === 'manager') {
+        router.push('/manager'); // Redirect to manager dashboard if manager
+      } else if (data.user && data.user.acc_type === 'customer') {
+        router.push('/menu'); // Redirect to the menu if customer
+      } else {
+        setError('Invalid account type.');
+      }
     } else {
-      // Invalid credentials
-      return new Response(
-        JSON.stringify({ success: false, message: 'Invalid email or password' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
+      setError(data.message || 'Invalid email or password.');
     }
-  } catch (error) {
-    console.error('Error occurred:', error);
-    return new Response(
-      JSON.stringify({ success: false, message: 'Internal server error', error: error.message }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button type="submit">Log In</button>
+      {error && <p>{error}</p>}
+    </form>
+  );
 }
