@@ -7,20 +7,19 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { useState, useEffect } from 'react';
-import LoginPage from '../login/page';
-import RegisterPage from '../register/page';
-import ManagerDashboard from '../manager/page'; // Import ManagerDashboard
-import Grid from '@mui/material/Grid'; // Import Grid
-import Paper from '@mui/material/Paper'; // Import Paper for wrapping items
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import { useRouter } from 'next/router';
 
 export default function SmallApp() {
   const [activePage, setActivePage] = useState('home'); // Tracks active page
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [accType, setAccType] = useState(''); // Track account type
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
   const [cart, setCart] = useState([]); // Track items in the shopping cart
+
+  const router = useRouter();
 
   // Fetch products when the "menu" page is active
   useEffect(() => {
@@ -29,6 +28,22 @@ export default function SmallApp() {
     }
   }, [activePage]);
 
+  // Fetch cart items from the database
+  async function fetchCartItems() {
+    try {
+      const response = await fetch('/api/getCartItems');
+      const result = await response.json();
+      if (response.ok) {
+        setCart(result);
+      } else {
+        setError('Failed to fetch cart items.');
+      }
+    } catch (err) {
+      setError('Failed to fetch cart items.');
+    }
+  }
+
+  // Fetch products for menu page
   async function fetchProducts() {
     setLoading(true);
     setError('');
@@ -46,79 +61,42 @@ export default function SmallApp() {
     }
   }
 
-  // Add product to cart
+  // Function to handle product add to cart
   function handleAddToCart(product) {
-    setCart((prevCart) => [...prevCart, product]);
+    // Add to cart logic here
   }
-
-  // Function to safely format the price
-  const formatPrice = (price) => {
-    const numericPrice = parseFloat(price); // Convert to number
-    if (!isNaN(numericPrice)) {
-      return numericPrice.toFixed(2); // Return formatted price to 2 decimal places
-    }
-    return 'Invalid Price'; // Handle invalid price case
-  };
 
   return (
     <Box sx={{ backgroundColor: '#FFF8E7', minHeight: '100vh' }}>
       <AppBar position="static" sx={{ backgroundColor: '#FFB5E8' }}>
         <Toolbar>
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{
-              flexGrow: 1,
-              fontFamily: 'Comic Sans MS, sans-serif',
-              color: '#6B4226',
-            }}
-          >
+          <Typography variant="h6" sx={{ flexGrow: 1, color: '#6B4226' }}>
             🍩 KRISPY KREME
           </Typography>
-          <Button
-            color="inherit"
-            onClick={() => setActivePage('smallapp')}
-            sx={{ color: '#6B4226', fontWeight: 'bold' }}
-          >
+          <Button color="inherit" onClick={() => setActivePage('home')} sx={{ color: '#6B4226' }}>
             Home
           </Button>
-          {!isLoggedIn && (
+
+          {!isLoggedIn ? (
             <>
-              <Button
-                color="inherit"
-                onClick={() => setActivePage('login')}
-                sx={{ color: '#6B4226', fontWeight: 'bold' }}
-              >
+              <Button color="inherit" onClick={() => setActivePage('login')} sx={{ color: '#6B4226' }}>
                 Sign In
               </Button>
-              <Button
-                color="inherit"
-                onClick={() => setActivePage('register')}
-                sx={{ color: '#6B4226', fontWeight: 'bold' }}
-              >
+              <Button color="inherit" onClick={() => setActivePage('register')} sx={{ color: '#6B4226' }}>
                 Sign Up
               </Button>
             </>
-          )}
-          {isLoggedIn && (
-            <Button
-              color="inherit"
-              onClick={() => {
-                setIsLoggedIn(false);
-                setAccType('');
-                setActivePage('home');
-              }}
-              sx={{ color: '#6B4226', fontWeight: 'bold' }}
-            >
+          ) : (
+            <Button color="inherit" onClick={() => setIsLoggedIn(false)} sx={{ color: '#6B4226' }}>
               Logout
             </Button>
           )}
-          <Button
-            color="inherit"
-            onClick={() => setActivePage('menu')}
-            sx={{ color: '#6B4226', fontWeight: 'bold' }}
-          >
+          <Button color="inherit" onClick={() => setActivePage('menu')} sx={{ color: '#6B4226' }}>
             Menu
+          </Button>
+          {/* Add View Cart Button */}
+          <Button color="inherit" onClick={fetchCartItems} sx={{ color: '#6B4226' }}>
+            View Cart ({cart.length})
           </Button>
         </Toolbar>
       </AppBar>
@@ -126,92 +104,50 @@ export default function SmallApp() {
       {/* Render content based on active page */}
       {activePage === 'menu' && (
         <Box sx={{ p: 3 }}>
-          {/* Title */}
-          <Typography
-            variant="h5"
-            sx={{
-              color: '#6B4226',
-              fontFamily: 'Comic Sans MS, sans-serif',
-              textAlign: 'center',
-              fontWeight: 'bold',
-            }}
-          >
+          <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
             Our Delicious Dough
           </Typography>
 
-          {error && (
-            <Typography color="red" sx={{ textAlign: 'center', mt: 2 }}>
-              {error}
-            </Typography>
-          )}
-
           {loading ? (
-            <Typography sx={{ textAlign: 'center', mt: 3 }}>
-              Loading products...
-            </Typography>
-          ) : data && data.length > 0 ? (
-            <Grid container spacing={2} sx={{ justifyContent: 'center', mt: 3 }}>
-              {data.map((item, index) => (
-                <Grid item key={index} xs={12} sm={6} md={4}>
-                  <Paper
-                    sx={{
-                      backgroundColor: '#FFF1F1',
-                      padding: 2,
-                      borderRadius: 2,
-                      boxShadow: 3,
-                      textAlign: 'center',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                    }}
-                  >
-                    {/* Product Name */}
-                    <Typography
-                      sx={{
-                        fontWeight: 'bold',
-                        color: '#6B4226',
-                        fontSize: '1.2rem',
-                        marginBottom: 1,
-                      }}
-                    >
-                      {item.pname}
-                    </Typography>
-
-                    {/* Product Price */}
-                    <Typography
-                      sx={{
-                        fontSize: '1rem',
-                        color: '#6B4226',
-                        marginBottom: 2,
-                      }}
-                    >
-                      ${formatPrice(item.price)}
-                    </Typography>
-
-                    {/* Add to Cart Button */}
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleAddToCart(item)}
-                      sx={{
-                        backgroundColor: '#FFB5E8',
-                        color: '#6B4226',
-                        fontWeight: 'bold',
-                        '&:hover': {
-                          backgroundColor: '#FF8D9E',
-                        },
-                      }}
-                    >
-                      Add to Cart
-                    </Button>
-                  </Paper>
-                </Grid>
-              ))}
-            </Grid>
+            <Typography sx={{ textAlign: 'center' }}>Loading products...</Typography>
           ) : (
-            <Typography>No products available.</Typography>
+            <Grid container spacing={2} sx={{ justifyContent: 'center', mt: 3 }}>
+              {data && data.length > 0 ? (
+                data.map((item, index) => (
+                  <Grid item key={index} xs={12} sm={6} md={4}>
+                    <Paper sx={{ padding: 2 }}>
+                      <Typography sx={{ fontWeight: 'bold' }}>{item.pname}</Typography>
+                      <Typography>${item.price}</Typography>
+                      <Button variant="contained" onClick={() => handleAddToCart(item)}>
+                        Add to Cart
+                      </Button>
+                    </Paper>
+                  </Grid>
+                ))
+              ) : (
+                <Typography>No products available.</Typography>
+              )}
+            </Grid>
           )}
+        </Box>
+      )}
+
+      {/* View Cart Section */}
+      {cart.length > 0 && (
+        <Box sx={{ p: 3 }}>
+          <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
+            Your Cart
+          </Typography>
+          <Grid container spacing={2} sx={{ justifyContent: 'center', mt: 3 }}>
+            {cart.map((item, index) => (
+              <Grid item key={index} xs={12} sm={6} md={4}>
+                <Paper sx={{ padding: 2 }}>
+                  <Typography sx={{ fontWeight: 'bold' }}>{item.pname}</Typography>
+                  <Typography>Quantity: {item.quantity}</Typography>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
         </Box>
       )}
     </Box>
