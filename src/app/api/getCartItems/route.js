@@ -19,7 +19,7 @@ async function connectToDatabase() {
 // Server-side route to handle cart items
 export async function GET(request) {
   try {
-    // Get the logged-in user's email from the request headers or context
+    
     const { username } = request.headers;
 
     if (!username) {
@@ -47,10 +47,10 @@ async function fetchCartItemsFromDatabase(username) {
   // Access the shopping_cart collection
   const collection = db.collection('shopping_cart');
 
-  // Query to find items for the user (assuming 'username' is unique)
+  // Query to find items for the user 
   const cartItems = await collection
     .find({ username })
-    .project({ _id: 1, pname: 1 }) // Only select necessary fields
+    .project({ _id: 1, pname: 1 }) 
     .toArray();
 
   return cartItems;

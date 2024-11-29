@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
 import { MongoClient } from 'mongodb';
-
-// Vercel handles this as a serverless function
 export async function POST(req) {
   const uri = process.env.DB_ADDRESS;
   const client = new MongoClient(uri);
@@ -29,7 +27,7 @@ export async function POST(req) {
       );
     }
 
-    // Insert new user with default 'customer' acc_type
+    // New user with default acc_type
     const newUser = {
       username: email,
       pass: password,

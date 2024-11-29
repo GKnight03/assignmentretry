@@ -10,9 +10,9 @@ export async function POST(req) {
     await client.connect();
     const db = client.db(process.env.DB_NAME);
     const collection = db.collection('shopping_cart');
-    const productsCollection = db.collection('products'); // Assuming you have a products collection to fetch product price
+    const productsCollection = db.collection('products'); 
 
-    // Fetch the product details from the products collection (assuming the product has a 'price' field)
+    // Fetch the product details from the products collection
     const product = await productsCollection.findOne({ pname });
 
     if (!product) {
@@ -37,7 +37,7 @@ export async function POST(req) {
         pname,
         username,
         quantity: 1,
-        price: product.price, // Add price to the cart item
+        price: product.price, 
       });
     }
 

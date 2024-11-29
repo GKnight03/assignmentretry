@@ -18,8 +18,8 @@ export default function SmallApp() {
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [cart, setCart] = useState([]);
+  const [weatherData, setWeatherData] = useState(null);  // State to store weather data
   const router = useRouter();
-
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
   useEffect(() => {
@@ -41,6 +41,24 @@ export default function SmallApp() {
       fetchProducts();
     }
   }, [activePage]);
+
+ 
+  useEffect(() => {
+    async function fetchWeather() {
+      try {
+        const weatherResponse = await fetch('http://api.weatherapi.com/v1/current.json?key=7e1ff16f76c649fb832184436242510&q=Dublin&aqi=no');
+        if (!weatherResponse.ok) {
+          throw new Error('Failed to fetch weather data');
+        }
+        const data = await weatherResponse.json();
+        setWeatherData(data.current.temp_c);  
+      } catch (err) {
+        setError('Error fetching weather data');
+      }
+    }
+
+    fetchWeather();
+  }, []);
 
   async function fetchCartItems() {
     try {
@@ -89,43 +107,6 @@ export default function SmallApp() {
   function calculateTotal() {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   }
-
-  // Function to handle order checkout
-  const handleCheckout = async () => {
-    if (cart.length === 0) {
-      alert('Your cart is empty!');
-      return;
-    }
-
-    const orderData = {
-      items: cart,
-      totalAmount: calculateTotal(),
-    };
-
-    try {
-      const response = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData),
-      });
-      const result = await response.json();
-
-      if (response.ok) {
-        // Redirect to the home page
-        router.push('/');
-
-        // Show a thank you popup
-        alert('Thank you for your order! Your items will be ready soon.');
-      } else {
-        alert('Error: ' + result.message);
-      }
-    } catch (error) {
-      console.error('Error during checkout:', error);
-      alert('There was an issue with placing your order. Please try again.');
-    }
-  };
 
   return (
     <Box sx={{ backgroundColor: '#3E3B3D', minHeight: '100vh' }}>
@@ -202,6 +183,9 @@ export default function SmallApp() {
             alt="Shaquille O'Neal"
             style={{ width: '300px', height: 'auto', marginTop: '20px', borderRadius: '10px' }}
           />
+          <Typography variant="h6" sx={{ color: '#FF0000', mt: 3 }}>
+            Current Temperature: {weatherData ? `${weatherData}°C` : 'Loading...'}
+          </Typography>
         </Box>
       )}
 
@@ -219,27 +203,15 @@ export default function SmallApp() {
                   <Paper sx={{ padding: 2, backgroundColor: '#2A2A2A' }}>
                     <Typography sx={{ fontWeight: 'bold', color: '#FF0000' }}>{item.pname}</Typography>
                     <Typography sx={{ color: '#FF0000' }}>Quantity: {item.quantity}</Typography>
-                    <Typography sx={{ color: '#FF0000' }}>Price: ${item.price * item.quantity}</Typography>
+                    <Typography sx={{ color: '#FF0000' }}>${item.price * item.quantity}</Typography>
                   </Paper>
                 </Grid>
               ))}
             </Grid>
           )}
-          <Typography sx={{ textAlign: 'center', mt: 3, fontWeight: 'bold', color: '#FF0000' }}>
+          <Typography sx={{ textAlign: 'center', color: '#FF0000', fontWeight: 'bold', mt: 3 }}>
             Total: ${calculateTotal()}
           </Typography>
-          
-          <Button
-            variant="contained"
-            sx={{
-              backgroundColor: '#FF0000',
-              color: '#FFFFFF',
-              marginTop: 3,
-            }}
-            onClick={handleCheckout}
-          >
-            Place Order
-          </Button>
         </Box>
       )}
     </Box>

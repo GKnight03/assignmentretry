@@ -4,7 +4,7 @@ import { MongoClient } from 'mongodb';
 export async function POST(req) {
   const { items, totalAmount, customerEmail } = await req.json();
 
-  // MongoDB connection details from environment variables
+
   const client = new MongoClient(process.env.DB_ADDRESS);
 
   try {

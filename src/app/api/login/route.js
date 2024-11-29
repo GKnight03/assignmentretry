@@ -1,20 +1,20 @@
 import { MongoClient } from 'mongodb';
 import { getIronSession } from 'iron-session';
-import { cookies } from 'next/headers'; // For working with cookies in Next.js
+import { cookies } from 'next/headers'; // For working with cookies
 
-const secretPassword = "VIi8pH38vD8ZLgEZclSa7an3olx4pkh6pvBj9fGZf"; // Your secret password for session encryption
+const secretPassword = "VIi8pH38vD8ZLgEZclSa7an3olx4pkh6pvBj9fGZf"; // Secret password for session encryption
 
 export async function POST(req) {
   try {
-    const { email, password } = await req.json(); // Get email and password from the request body
+    const { email, password } = await req.json(); // Get email and password 
 
     // Connect to MongoDB
     const url = process.env.DB_ADDRESS; // MongoDB connection string from environment variable
     const client = new MongoClient(url);
     await client.connect();
 
-    const db = client.db(process.env.DB_NAME); // Use environment variable for database name
-    const collection = db.collection('login'); // The login collection
+    const db = client.db(process.env.DB_NAME); 
+    const collection = db.collection('login'); 
 
     // Find the user by email (username in the DB)
     const user = await collection.findOne({ username: email });
@@ -30,13 +30,13 @@ export async function POST(req) {
       // Store user details in the session
       session.user = {
         email: user.username,
-        acc_type: user.acc_type, // Store the account type as well
+        acc_type: user.acc_type, 
       };
-      await session.save(); // Save the session
+      await session.save(); 
 
       // Return user details and success response
       return new Response(
-        JSON.stringify({ success: true, user: session.user }), // Send user details in response
+        JSON.stringify({ success: true, user: session.user }), 
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     } else {
