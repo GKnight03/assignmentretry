@@ -13,7 +13,7 @@ export async function POST(req) {
     const collection = db.collection('login'); // The login collection
 
     // Find the user by email (username in the DB)
-    const user = await collection.findOne({ username: email });  // Ensure this matches the DB structure
+    const user = await collection.findOne({ username: email });
 
     if (user && user.pass === password) {
       // Authentication successful, return user details and account type
