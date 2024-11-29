@@ -1,17 +1,19 @@
-// login/page.js
-import { useState } from 'react';
-import { useRouter } from 'next/router';
+
+'use client';
+
+import { useState } from 'react'; // useState is now safe to use
+import { useRouter } from 'next/navigation'; // Use 'next/navigation' instead of 'next/router'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter();
+  const router = useRouter(); // This is the correct way to handle navigation in Next.js 13
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Simulating a login process and checking if the user is a manager
+    // Simulate login process and check if the user is a manager
     const response = await fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -21,7 +23,7 @@ export default function LoginPage() {
     const data = await response.json();
 
     if (data.success && data.user.acc_type === 'manager') {
-      router.push('/manager'); // Redirect to manager dashboard
+      router.push('/manager'); // Use router.push for client-side navigation
     } else {
       setError('Invalid login or user is not a manager.');
     }
