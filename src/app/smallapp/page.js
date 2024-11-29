@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation'; // Correct usage for App Directory
+import { useRouter } from 'next/navigation';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -20,33 +20,28 @@ export default function SmallApp() {
   const [cart, setCart] = useState([]);
   const router = useRouter();
 
-  // Date and Time State
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
   useEffect(() => {
-    // Update the current time every second
     const timer = setInterval(() => {
       setCurrentDateTime(new Date());
     }, 1000);
 
-    return () => clearInterval(timer); // Cleanup interval on unmount
+    return () => clearInterval(timer);
   }, []);
 
-  // Fetch cart items when logged in
   useEffect(() => {
     if (isLoggedIn) {
       fetchCartItems();
     }
   }, [isLoggedIn]);
 
-  // Fetch products for menu
   useEffect(() => {
     if (activePage === 'menu') {
       fetchProducts();
     }
   }, [activePage]);
 
-  // Fetch cart items
   async function fetchCartItems() {
     try {
       const response = await fetch('/api/getCartItems');
@@ -61,7 +56,6 @@ export default function SmallApp() {
     }
   }
 
-  // Fetch products for the menu
   async function fetchProducts() {
     setLoading(true);
     setError('');
@@ -79,7 +73,6 @@ export default function SmallApp() {
     }
   }
 
-  // Handle product add to cart
   function handleAddToCart(product) {
     const updatedCart = [...cart];
     const productIndex = updatedCart.findIndex((item) => item._id === product._id);
@@ -98,36 +91,36 @@ export default function SmallApp() {
   }
 
   return (
-    <Box sx={{ backgroundColor: '#FFF8E7', minHeight: '100vh' }}>
-      <AppBar position="static" sx={{ backgroundColor: '#FFB5E8' }}>
+    <Box sx={{ backgroundColor: '#3E3B3D', minHeight: '100vh' }}>
+      <AppBar position="static" sx={{ backgroundColor: '#2A2A2A' }}>
         <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1, color: '#6B4226' }}>
-            🍩 KRISPY KREME
+          <Typography variant="h6" sx={{ flexGrow: 1, color: '#FF0000' }}>
+            🍩 EVIL KRISPY KREME
           </Typography>
-          <Typography variant="body2" sx={{ color: '#6B4226', marginRight: 2 }}>
+          <Typography variant="body2" sx={{ color: '#FF0000', marginRight: 2 }}>
             {currentDateTime.toLocaleDateString()} {currentDateTime.toLocaleTimeString()}
           </Typography>
-          <Button color="inherit" onClick={() => setActivePage('home')} sx={{ color: '#6B4226' }}>
+          <Button color="inherit" onClick={() => setActivePage('home')} sx={{ color: '#FF0000' }}>
             Home
           </Button>
           {!isLoggedIn ? (
             <>
-              <Button color="inherit" onClick={() => router.push('/login')} sx={{ color: '#6B4226' }}>
+              <Button color="inherit" onClick={() => router.push('/login')} sx={{ color: '#FF0000' }}>
                 Sign In
               </Button>
-              <Button color="inherit" onClick={() => router.push('/register')} sx={{ color: '#6B4226' }}>
+              <Button color="inherit" onClick={() => router.push('/register')} sx={{ color: '#FF0000' }}>
                 Sign Up
               </Button>
             </>
           ) : (
-            <Button color="inherit" onClick={() => setIsLoggedIn(false)} sx={{ color: '#6B4226' }}>
+            <Button color="inherit" onClick={() => setIsLoggedIn(false)} sx={{ color: '#FF0000' }}>
               Logout
             </Button>
           )}
-          <Button color="inherit" onClick={() => setActivePage('menu')} sx={{ color: '#6B4226' }}>
+          <Button color="inherit" onClick={() => setActivePage('menu')} sx={{ color: '#FF0000' }}>
             Menu
           </Button>
-          <Button color="inherit" onClick={() => setActivePage('cart')} sx={{ color: '#6B4226' }}>
+          <Button color="inherit" onClick={() => setActivePage('cart')} sx={{ color: '#FF0000' }}>
             View Cart ({cart.length})
           </Button>
         </Toolbar>
@@ -135,27 +128,27 @@ export default function SmallApp() {
 
       {activePage === 'menu' && (
         <Box sx={{ p: 3 }}>
-          <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
-            Our Delicious Dough
+          <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold', color: '#FF0000' }}>
+            The Forbidden Dough
           </Typography>
           {loading ? (
-            <Typography sx={{ textAlign: 'center' }}>Loading products...</Typography>
+            <Typography sx={{ textAlign: 'center', color: '#FF0000' }}>Summoning products...</Typography>
           ) : (
             <Grid container spacing={2} sx={{ justifyContent: 'center', mt: 3 }}>
               {data && data.length > 0 ? (
                 data.map((item, index) => (
                   <Grid item key={index} xs={12} sm={6} md={4}>
-                    <Paper sx={{ padding: 2 }}>
-                      <Typography sx={{ fontWeight: 'bold' }}>{item.pname}</Typography>
-                      <Typography>${item.price}</Typography>
-                      <Button variant="contained" onClick={() => handleAddToCart(item)}>
+                    <Paper sx={{ padding: 2, backgroundColor: '#2A2A2A' }}>
+                      <Typography sx={{ fontWeight: 'bold', color: '#FF0000' }}>{item.pname}</Typography>
+                      <Typography sx={{ color: '#FF0000' }}>${item.price}</Typography>
+                      <Button variant="contained" onClick={() => handleAddToCart(item)} sx={{ backgroundColor: '#FF0000' }}>
                         Add to Cart
                       </Button>
                     </Paper>
                   </Grid>
                 ))
               ) : (
-                <Typography>No products available.</Typography>
+                <Typography sx={{ color: '#FF0000' }}>No products available.</Typography>
               )}
             </Grid>
           )}
@@ -164,25 +157,25 @@ export default function SmallApp() {
 
       {activePage === 'cart' && (
         <Box sx={{ p: 3 }}>
-          <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
-            Your Cart
+          <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold', color: '#FF0000' }}>
+            Your Dark Cart
           </Typography>
           {cart.length === 0 ? (
-            <Typography sx={{ textAlign: 'center' }}>Your cart is empty.</Typography>
+            <Typography sx={{ textAlign: 'center', color: '#FF0000' }}>Your cart is empty.</Typography>
           ) : (
             <Grid container spacing={2} sx={{ justifyContent: 'center', mt: 3 }}>
               {cart.map((item, index) => (
                 <Grid item key={index} xs={12} sm={6} md={4}>
-                  <Paper sx={{ padding: 2 }}>
-                    <Typography sx={{ fontWeight: 'bold' }}>{item.pname}</Typography>
-                    <Typography>Quantity: {item.quantity}</Typography>
-                    <Typography>Price: ${item.price * item.quantity}</Typography>
+                  <Paper sx={{ padding: 2, backgroundColor: '#2A2A2A' }}>
+                    <Typography sx={{ fontWeight: 'bold', color: '#FF0000' }}>{item.pname}</Typography>
+                    <Typography sx={{ color: '#FF0000' }}>Quantity: {item.quantity}</Typography>
+                    <Typography sx={{ color: '#FF0000' }}>Price: ${item.price * item.quantity}</Typography>
                   </Paper>
                 </Grid>
               ))}
             </Grid>
           )}
-          <Typography sx={{ textAlign: 'center', mt: 3, fontWeight: 'bold' }}>
+          <Typography sx={{ textAlign: 'center', mt: 3, fontWeight: 'bold', color: '#FF0000' }}>
             Total: ${calculateTotal()}
           </Typography>
         </Box>
