@@ -1,155 +1,57 @@
-"use client"; // Add this line to mark the component as client-side
+import { MongoClient } from 'mongodb';
 
-import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import { useState, useEffect } from 'react';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import { useRouter } from 'next/router';
+// Read environment variables from the .env file
+const dbAddress = process.env.DB_ADDRESS;
+const dbName = process.env.DB_NAME;
 
-export default function SmallApp() {
-  const [activePage, setActivePage] = useState('home'); // Tracks active page
-  const [data, setData] = useState(null);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
-  const [cart, setCart] = useState([]); // Track items in the shopping cart
+// MongoDB client
+let client;
 
-  const router = useRouter();
-
-  // Fetch products when the "menu" page is active
-  useEffect(() => {
-    if (activePage === 'menu') {
-      fetchProducts();
-    }
-  }, [activePage]);
-
-  // Fetch cart items from the database
-  async function fetchCartItems() {
-    try {
-      const response = await fetch('/api/getCartItems');
-      const result = await response.json();
-      if (response.ok) {
-        setCart(result);
-      } else {
-        setError('Failed to fetch cart items.');
-      }
-    } catch (err) {
-      setError('Failed to fetch cart items.');
-    }
+// Function to connect to the MongoDB database
+async function connectToDatabase() {
+  if (!client) {
+    client = new MongoClient(dbAddress, { useNewUrlParser: true, useUnifiedTopology: true });
+    await client.connect();
   }
+  return client.db(dbName);
+}
 
-  // Fetch products for menu page
-  async function fetchProducts() {
-    setLoading(true);
-    setError('');
-    try {
-      const response = await fetch('/api/getProducts');
-      if (!response.ok) {
-        throw new Error('Failed to fetch products.');
-      }
-      const result = await response.json();
-      setData(result);
-    } catch (err) {
-      setError('Failed to fetch products.');
-    } finally {
-      setLoading(false);
+// Server-side route to handle cart items
+export async function GET(request) {
+  try {
+    // Get the logged-in user's email from the request headers or context
+    const { username } = request.headers;
+
+    if (!username) {
+      return new Response('Username is required', { status: 400 });
     }
+
+    // Fetch cart items for the user from the database
+    const cartItems = await fetchCartItemsFromDatabase(username);
+
+    return new Response(JSON.stringify(cartItems), {
+      status: 200,
+    });
+  } catch (error) {
+    console.error(error);
+    return new Response('Failed to fetch cart items', {
+      status: 500,
+    });
   }
+}
 
-  // Function to handle product add to cart
-  function handleAddToCart(product) {
-    // Add to cart logic here
-  }
+// Function to fetch cart items from the database
+async function fetchCartItemsFromDatabase(username) {
+  const db = await connectToDatabase();
 
-  return (
-    <Box sx={{ backgroundColor: '#FFF8E7', minHeight: '100vh' }}>
-      <AppBar position="static" sx={{ backgroundColor: '#FFB5E8' }}>
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1, color: '#6B4226' }}>
-            🍩 KRISPY KREME
-          </Typography>
-          <Button color="inherit" onClick={() => setActivePage('home')} sx={{ color: '#6B4226' }}>
-            Home
-          </Button>
+  // Access the shopping_cart collection
+  const collection = db.collection('shopping_cart');
 
-          {!isLoggedIn ? (
-            <>
-              <Button color="inherit" onClick={() => setActivePage('login')} sx={{ color: '#6B4226' }}>
-                Sign In
-              </Button>
-              <Button color="inherit" onClick={() => setActivePage('register')} sx={{ color: '#6B4226' }}>
-                Sign Up
-              </Button>
-            </>
-          ) : (
-            <Button color="inherit" onClick={() => setIsLoggedIn(false)} sx={{ color: '#6B4226' }}>
-              Logout
-            </Button>
-          )}
-          <Button color="inherit" onClick={() => setActivePage('menu')} sx={{ color: '#6B4226' }}>
-            Menu
-          </Button>
-          {/* Add View Cart Button */}
-          <Button color="inherit" onClick={fetchCartItems} sx={{ color: '#6B4226' }}>
-            View Cart ({cart.length})
-          </Button>
-        </Toolbar>
-      </AppBar>
+  // Query to find items for the user (assuming 'username' is unique)
+  const cartItems = await collection
+    .find({ username })
+    .project({ _id: 1, pname: 1 }) // Only select necessary fields
+    .toArray();
 
-      {/* Render content based on active page */}
-      {activePage === 'menu' && (
-        <Box sx={{ p: 3 }}>
-          <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
-            Our Delicious Dough
-          </Typography>
-
-          {loading ? (
-            <Typography sx={{ textAlign: 'center' }}>Loading products...</Typography>
-          ) : (
-            <Grid container spacing={2} sx={{ justifyContent: 'center', mt: 3 }}>
-              {data && data.length > 0 ? (
-                data.map((item, index) => (
-                  <Grid item key={index} xs={12} sm={6} md={4}>
-                    <Paper sx={{ padding: 2 }}>
-                      <Typography sx={{ fontWeight: 'bold' }}>{item.pname}</Typography>
-                      <Typography>${item.price}</Typography>
-                      <Button variant="contained" onClick={() => handleAddToCart(item)}>
-                        Add to Cart
-                      </Button>
-                    </Paper>
-                  </Grid>
-                ))
-              ) : (
-                <Typography>No products available.</Typography>
-              )}
-            </Grid>
-          )}
-        </Box>
-      )}
-
-      {/* View Cart Section */}
-      {cart.length > 0 && (
-        <Box sx={{ p: 3 }}>
-          <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
-            Your Cart
-          </Typography>
-          <Grid container spacing={2} sx={{ justifyContent: 'center', mt: 3 }}>
-            {cart.map((item, index) => (
-              <Grid item key={index} xs={12} sm={6} md={4}>
-                <Paper sx={{ padding: 2 }}>
-                  <Typography sx={{ fontWeight: 'bold' }}>{item.pname}</Typography>
-                  <Typography>Quantity: {item.quantity}</Typography>
-                </Paper>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-      )}
-    </Box>
-  );
+  return cartItems;
 }
