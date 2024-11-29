@@ -32,11 +32,10 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        // Check user type and redirect accordingly
         if (data.user && data.user.acc_type === 'manager') {
-          setTimeout(() => router.push('/manager'), 500); // Redirect to manager dashboard
+          setTimeout(() => router.push('/manager'), 500);
         } else if (data.user && data.user.acc_type === 'customer') {
-          setTimeout(() => router.push('/smallapp'), 500); // Redirect to customer app
+          setTimeout(() => router.push('/smallapp'), 500);
         } else {
           setError('Invalid account type.');
         }
@@ -51,14 +50,14 @@ export default function LoginPage() {
   };
 
   return (
-    <Box sx={{ backgroundColor: '#FFF8E7', minHeight: '100vh' }}>
+    <Box sx={{ backgroundColor: '#3E3B3D', minHeight: '100vh' }}>
       <Box sx={{ maxWidth: 400, margin: 'auto', padding: 2, mt: 5 }}>
-        <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold', color: '#6B4226' }}>
-          🍩 KRISPY KREME Login
+        <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold', color: '#FF0000' }}>
+          🍩 EVIL KRISPY KREME Login
         </Typography>
 
         {error && (
-          <Typography variant="body2" color="error" sx={{ textAlign: 'center', marginTop: 2 }}>
+          <Typography variant="body2" color="error" sx={{ textAlign: 'center', marginTop: 2, color: '#FF0000' }}>
             {error}
           </Typography>
         )}
@@ -91,11 +90,11 @@ export default function LoginPage() {
             fullWidth
             disabled={isLoading}
             sx={{
-              backgroundColor: '#FFB5E8',
-              color: '#6B4226',
+              backgroundColor: '#FF0000',
+              color: '#FFF',
               marginTop: 2,
               '&:hover': {
-                backgroundColor: '#FF9CE8',
+                backgroundColor: '#FF5C5C',
               },
             }}
           >
@@ -104,7 +103,7 @@ export default function LoginPage() {
         </form>
 
         <Box sx={{ textAlign: 'center', marginTop: 3 }}>
-          <Typography variant="body2" sx={{ color: '#6B4226' }}>
+          <Typography variant="body2" sx={{ color: '#FF0000' }}>
             Don't have an account?{' '}
             <Button
               onClick={() => router.push('/register')}
