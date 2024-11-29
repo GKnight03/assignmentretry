@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -11,6 +9,7 @@ import LoginPage from '../login/page';
 import RegisterPage from '../register/page';
 import ManagerDashboard from '../manager/page'; // Import ManagerDashboard
 import Grid from '@mui/material/Grid'; // Import Grid
+import Paper from '@mui/material/Paper'; // Import Paper for wrapping items
 
 export default function SmallApp() {
   const [activePage, setActivePage] = useState('home'); // Tracks active page
@@ -50,16 +49,6 @@ export default function SmallApp() {
     setCart((prevCart) => [...prevCart, product]);
   }
 
-  // Remove product from cart
-  function handleRemoveFromCart(productName) {
-    setCart((prevCart) => prevCart.filter((item) => item.pname !== productName));
-  }
-
-  // Calculate total cost
-  function calculateTotal() {
-    return cart.reduce((total, item) => total + parseFloat(item.price), 0).toFixed(2); // Assuming products have a 'price' field
-  }
-
   // Function to safely format the price
   const formatPrice = (price) => {
     const numericPrice = parseFloat(price); // Convert to number
@@ -68,17 +57,6 @@ export default function SmallApp() {
     }
     return 'Invalid Price'; // Handle invalid price case
   };
-
-  // Handle login success
-  function handleLoginSuccess(accType) {
-    setAccType(accType); // Set the account type after successful login
-    setIsLoggedIn(true); // Mark as logged in
-    if (accType === 'manager') {
-      setActivePage('manager'); // Navigate to ManagerDashboard if the user is a manager
-    } else {
-      setActivePage('home'); // Navigate to Home if not a manager
-    }
-  }
 
   return (
     <Box sx={{ backgroundColor: '#FFF8E7', minHeight: '100vh' }}>
@@ -144,26 +122,6 @@ export default function SmallApp() {
       </AppBar>
 
       {/* Render content based on active page */}
-      {activePage === 'home' && (
-        <Box sx={{ p: 3, textAlign: 'center' }}>
-          <Typography
-            variant="h4"
-            sx={{ fontFamily: 'Comic Sans MS, sans-serif', color: '#6B4226' }}
-          >
-            Welcome to KRISPY KREME! 🍩
-          </Typography>
-          <Typography variant="body1" sx={{ mt: 2, color: '#6B4226' }}>
-            Where every bite is a delight!
-          </Typography>
-        </Box>
-      )}
-
-      {activePage === 'login' && (
-        <LoginPage onLoginSuccess={handleLoginSuccess} />
-      )}
-
-      {activePage === 'register' && <RegisterPage />}
-
       {activePage === 'menu' && (
         <Box sx={{ p: 3 }}>
           {/* Title */}
@@ -193,7 +151,7 @@ export default function SmallApp() {
             <Grid container spacing={2} sx={{ justifyContent: 'center', mt: 3 }}>
               {data.map((item, index) => (
                 <Grid item key={index} xs={12} sm={6} md={4}>
-                  <Box
+                  <Paper
                     sx={{
                       backgroundColor: '#FFF1F1',
                       padding: 2,
@@ -245,7 +203,7 @@ export default function SmallApp() {
                     >
                       Add to Cart
                     </Button>
-                  </Box>
+                  </Paper>
                 </Grid>
               ))}
             </Grid>
@@ -254,42 +212,6 @@ export default function SmallApp() {
           )}
         </Box>
       )}
-
-      {activePage === 'checkout' && (
-        <Box sx={{ p: 3 }}>
-          <Typography variant="h5" sx={{ textAlign: 'center', color: '#6B4226' }}>
-            Checkout
-          </Typography>
-          <Box sx={{ mt: 2 }}>
-            {cart.length === 0 ? (
-              <Typography>No items in the cart</Typography>
-            ) : (
-              <Box>
-                {cart.map((item, index) => (
-                  <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography>{item.pname}</Typography>
-                    <Button onClick={() => handleRemoveFromCart(item.pname)}>Remove</Button>
-                  </Box>
-                ))}
-                <Box sx={{ mt: 2 }}>
-                  <Typography variant="h6">Total: ${calculateTotal()}</Typography>
-                  <Button
-                    color="primary"
-                    variant="contained"
-                    sx={{ mt: 2 }}
-                    onClick={() => alert('Order placed successfully!')}
-                  >
-                    Place Order
-                  </Button>
-                </Box>
-              </Box>
-            )}
-          </Box>
-        </Box>
-      )}
-
-      {/* Render Manager Dashboard if account type is manager */}
-      {activePage === 'manager' && <ManagerDashboard />}
     </Box>
   );
 }
