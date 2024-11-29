@@ -1,3 +1,4 @@
+// app/manager/page.js
 'use client';
 
 import * as React from 'react';
@@ -11,19 +12,16 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useState, useEffect } from 'react';
 
 export default function ManagerDashboard() {
-  const [cartItems, setCartItems] = useState(null);
+  const [orderStats, setOrderStats] = useState(null);
 
   useEffect(() => {
-    fetch('/api/getCartItems') // Fetching items from shopping_cart collection
+    fetch('/api/getOrderStatistics') // Fetching order statistics
       .then((res) => res.json())
-      .then((data) => {
-        console.log(data);  // Log the fetched data to check its structure
-        setCartItems(data);
-      })
-      .catch((error) => console.error('Error fetching cart items:', error));
+      .then((data) => setOrderStats(data))
+      .catch((error) => console.error('Error fetching order statistics:', error));
   }, []);
 
-  if (!cartItems) return <p>Loading cart items...</p>;
+  if (!orderStats) return <p>Loading order statistics...</p>;
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -41,24 +39,16 @@ export default function ManagerDashboard() {
 
       <Box sx={{ p: 3, bgcolor: '#2c2c2c', border: '2px dashed #ff0000', borderRadius: 2 }}>
         <Typography variant="h5" color="#ff0000" sx={{ textAlign: 'center', mb: 2 }}>
-          Shopping Cart Items
+          Order Statistics
         </Typography>
 
-        <Box sx={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', color: '#fff' }}>
-            <thead>
-              <tr>
-                <th style={{ color: '#ff0000' }}>Product Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cartItems.map((item, i) => (
-                <tr key={i} style={{ backgroundColor: '#333' }}>
-                  <td>{item.pname}</td>  {/* Display product name */}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <Box sx={{ bgcolor: '#333', color: '#fff', padding: 2, borderRadius: 2 }}>
+          <Typography variant="h6">
+            Total Orders: {orderStats.totalOrders}
+          </Typography>
+          <Typography variant="h6">
+            Total Cost: ${orderStats.totalCost.toFixed(2)}
+          </Typography>
         </Box>
       </Box>
     </Box>
