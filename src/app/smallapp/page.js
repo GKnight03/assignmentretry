@@ -126,6 +126,19 @@ export default function SmallApp() {
         </Toolbar>
       </AppBar>
 
+      {activePage === 'home' && (
+        <Box sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#FF0000' }}>
+            Welcome to the EVIL Krispy Kreme!
+          </Typography>
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/a/a7/Shaquille_O%27Neal_2014.jpg"
+            alt="Shaquille O'Neal"
+            style={{ width: '300px', height: 'auto', marginTop: '20px', borderRadius: '10px' }}
+          />
+        </Box>
+      )}
+
       {activePage === 'menu' && (
         <Box sx={{ p: 3 }}>
           <Typography variant="h5" sx={{ textAlign: 'center', fontWeight: 'bold', color: '#FF0000' }}>
