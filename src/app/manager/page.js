@@ -49,14 +49,12 @@ export default function ManagerDashboard() {
             <thead>
               <tr>
                 <th style={{ color: '#ff0000' }}>Product Name</th>
-                <th style={{ color: '#ff0000' }}>Quantity</th>
               </tr>
             </thead>
             <tbody>
               {cartItems.map((item, i) => (
                 <tr key={i} style={{ backgroundColor: '#333' }}>
-                  <td>{item.pname}</td>  {/* Ensure pname is correctly displayed */}
-                  <td>{item.quantity}</td>  {/* Ensure quantity is correctly displayed */}
+                  <td>{item.pname}</td>  {/* Display product name */}
                 </tr>
               ))}
             </tbody>
