@@ -1,4 +1,4 @@
-"use client"; // This ensures the component is client-side
+"use client"; // Ensures the component runs on the client-side only
 
 import * as React from 'react';
 import { useState, useEffect } from 'react';
