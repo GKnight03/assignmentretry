@@ -9,7 +9,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import validator from 'email-validator';
+
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -17,43 +17,11 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [open, setOpen] = React.useState(false);
-  const [errorHolder, setErrorHolder] = React.useState('');
   const router = useRouter(); // for navigation after registration
 
-  // Validate the form
-  const validateForm = (event) => {
-    let errorMessage = '';
-
-    // Grab the form data
-    const data = new FormData(event.currentTarget);
-    let email = data.get('email');
-    let password = data.get('password');
-
-    // Validate the email
-    let emailCheck = validator.validate(email);
-    if (!emailCheck) {
-      errorMessage += 'Invalid email address. ';
-    }
-
-    // Check for empty password
-    if (!password) {
-      errorMessage += 'Password is required.';
-    }
-
-    return errorMessage;
-  };
-
-  const handleRegister = async (event) => {
-    event.preventDefault();
-
-    // Validate the form
-    let errorMessage = validateForm(event);
-    setErrorHolder(errorMessage);
-
-    // If errors, show the dialog
-    if (errorMessage.length > 0) {
-      setOpen(true);
+  const handleRegister = async () => {
+    if (!email || !password) {
+      setError('All fields are required.');
       return;
     }
 
@@ -72,7 +40,10 @@ export default function RegisterPage() {
 
       if (response.ok) {
         setSuccessMessage('Registration successful! Redirecting to login...');
-        setTimeout(() => router.push('/login'), 2000);
+        setError('');
+        setTimeout(() => {
+          router.push('/login'); // Redirect to login after 2 seconds
+        }, 2000);
       } else {
         setError(data.message || 'Registration failed. Please try again.');
       }
@@ -90,12 +61,14 @@ export default function RegisterPage() {
           🍩 EVIL KRISPY KREME Registration
         </Typography>
 
+        {/* Display Error Message */}
         {error && (
           <Typography variant="body2" color="error" sx={{ textAlign: 'center', marginTop: 2 }}>
             {error}
           </Typography>
         )}
 
+        {/* Display Success Message */}
         {successMessage && (
           <Typography variant="body2" color="success" sx={{ textAlign: 'center', marginTop: 2 }}>
             {successMessage}
@@ -110,7 +83,18 @@ export default function RegisterPage() {
             margin="normal"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            sx={{ backgroundColor: '#fff', borderRadius: '4px' }}
+            sx={{
+              backgroundColor: '#fff',
+              borderRadius: '4px',
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: '#6B4226', 
+                },
+                '&:hover fieldset': {
+                  borderColor: '#FFB5E8', 
+                },
+              },
+            }}
             required
           />
           <TextField
@@ -121,7 +105,18 @@ export default function RegisterPage() {
             margin="normal"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            sx={{ backgroundColor: '#fff', borderRadius: '4px' }}
+            sx={{
+              backgroundColor: '#fff',
+              borderRadius: '4px',
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: '#6B4226',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#FFB5E8',
+                },
+              },
+            }}
             required
           />
           <Button
@@ -130,10 +125,12 @@ export default function RegisterPage() {
             onClick={handleRegister}
             disabled={isLoading}
             sx={{
-              backgroundColor: '#FFB5E8',
+              backgroundColor: '#FFB5E8', 
               color: '#6B4226',
               marginTop: 2,
-              '&:hover': { backgroundColor: '#d90166' },
+              '&:hover': {
+                backgroundColor: '#d90166', 
+              },
             }}
           >
             {isLoading ? <CircularProgress size={24} sx={{ color: '#6B4226' }} /> : 'Register'}
@@ -145,26 +142,17 @@ export default function RegisterPage() {
             Already have an account?{' '}
             <Button
               onClick={() => router.push('/login')}
-              sx={{ color: '#FFB5E8', textDecoration: 'underline' }}
+              sx={{
+                color: '#FFB5E8',
+                textDecoration: 'underline',
+                '&:hover': { backgroundColor: 'transparent' }, 
+              }}
             >
               Log In
             </Button>
           </Typography>
         </Box>
       </Box>
-
-      {/* Dialog for error message */}
-      <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
-        <DialogTitle id="alert-dialog-title">{"Error"}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">{errorHolder}</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)} autoFocus>
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 }
