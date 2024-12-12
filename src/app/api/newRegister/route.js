@@ -1,19 +1,24 @@
 import { NextResponse } from 'next/server';
 import { MongoClient } from 'mongodb';
+import bcrypt from 'bcrypt';  // Import bcrypt
+
 export async function POST(req) {
   const uri = process.env.DB_ADDRESS;
   const client = new MongoClient(uri);
 
   try {
-    const { email, password } = await req.json();
+    // Get the data from the request
+    const { email, password, dob } = await req.json();  
 
-    if (!email || !password) {
+    // Check for required fields
+    if (!email || !password || !dob) {
       return NextResponse.json(
-        { message: 'Email and password are required.' },
+        { message: 'Email, password, and date of birth are required.' },
         { status: 400 }
       );
     }
 
+    // Connect to MongoDB
     await client.connect();
     const db = client.db(process.env.DB_NAME);
     const loginCollection = db.collection('login');
@@ -27,12 +32,19 @@ export async function POST(req) {
       );
     }
 
-    // New user with default acc_type
+    // Hash the password using bcrypt
+    const saltRounds = 10;
+    const hashedPassword = bcrypt.hashSync(password, saltRounds);
+
+    // New user object
     const newUser = {
       username: email,
-      pass: password,
-      acc_type: 'customer',
+      pass: hashedPassword,  // Store the hashed password
+      dob: dob,  // Include date of birth
+      acc_type: 'customer',  // Default account type
     };
+
+    // Insert the new user into the database
     await loginCollection.insertOne(newUser);
 
     return NextResponse.json(
