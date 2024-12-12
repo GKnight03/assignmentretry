@@ -7,10 +7,8 @@ export async function POST(req) {
   const client = new MongoClient(uri);
 
   try {
-    // Get the data from the request
-    const {email, password} = await req.json();  
+    const { email, password } = await req.json();
 
-    // Check for required fields
     if (!email || !password) {
       return NextResponse.json(
         { message: 'Email and password are required.' },
@@ -18,7 +16,6 @@ export async function POST(req) {
       );
     }
 
-    // Connect to MongoDB
     await client.connect();
     const db = client.db(process.env.DB_NAME);
     const loginCollection = db.collection('login');
@@ -36,15 +33,13 @@ export async function POST(req) {
     const saltRounds = 10;
     const hashedPassword = bcrypt.hashSync(password, saltRounds);
 
-    // New user object
+    // New user with the hashed password and default acc_type
     const newUser = {
       username: email,
       pass: hashedPassword,  // Store the hashed password
-      dob: dob,  // Include date of birth
-      acc_type: 'customer',  // Default account type
+      acc_type: 'customer',   // Default account type
     };
 
-    // Insert the new user into the database
     await loginCollection.insertOne(newUser);
 
     return NextResponse.json(
