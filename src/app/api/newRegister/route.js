@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { MongoClient } from 'mongodb';
-import bcrypt from 'bcrypt';  // Import bcrypt
+import bcrypt from 'bcryptjs';  // Use bcryptjs
 
 export async function POST(req) {
   const uri = process.env.DB_ADDRESS;
@@ -16,7 +16,10 @@ export async function POST(req) {
       );
     }
 
+    console.log('Connecting to MongoDB...');
     await client.connect();
+    console.log('Connected to MongoDB');
+    
     const db = client.db(process.env.DB_NAME);
     const loginCollection = db.collection('login');
 
@@ -29,9 +32,10 @@ export async function POST(req) {
       );
     }
 
-    // Hash the password using bcrypt
+    // Hash the password using bcryptjs async method
     const saltRounds = 10;
-    const hashedPassword = bcrypt.hashSync(password, saltRounds);
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    console.log('Hashed password:', hashedPassword);
 
     // New user with the hashed password and default acc_type
     const newUser = {
@@ -40,16 +44,20 @@ export async function POST(req) {
       acc_type: 'customer',   // Default account type
     };
 
-    await loginCollection.insertOne(newUser);
+    console.log('New user data:', newUser);
+
+    // Insert the new user into the database
+    const result = await loginCollection.insertOne(newUser);
+    console.log('Insert result:', result);
 
     return NextResponse.json(
       { message: 'User registered successfully.' },
       { status: 200 }
     );
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('Registration error:', error.message || error);
     return NextResponse.json(
-      { message: 'Registration failed.' },
+      { message: 'Registration failed.', error: error.message || error },
       { status: 500 }
     );
   } finally {
