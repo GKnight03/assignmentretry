@@ -8,7 +8,7 @@ export async function POST(req) {
 
   try {
     // Get the data from the request
-    const { email, password } = await req.json();  
+    const {email, password} = await req.json();  
 
     // Check for required fields
     if (!email || !password) {
@@ -36,10 +36,11 @@ export async function POST(req) {
     const saltRounds = 10;
     const hashedPassword = bcrypt.hashSync(password, saltRounds);
 
-    // New user object (no dob)
+    // New user object
     const newUser = {
       username: email,
       pass: hashedPassword,  // Store the hashed password
+      dob: dob,  // Include date of birth
       acc_type: 'customer',  // Default account type
     };
 
