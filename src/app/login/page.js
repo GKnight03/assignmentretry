@@ -1,27 +1,46 @@
 'use client';
 
 import { useState } from 'react';
-import { Box, Button, TextField, Typography, CircularProgress } from '@mui/material';
+import { Box, Button, TextField, Typography, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import validator from 'email-validator';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [open, setOpen] = useState(false);  // For dialog open state
+  const [errorHolder, setErrorHolder] = useState('');  // For error message to show in the dialog
   const router = useRouter();
+
+  const validateForm = (event) => {
+    let errorMessage = '';
+    const data = new FormData(event.currentTarget);
+    let email = data.get('email');
+
+    // Validate email
+    if (!validator.validate(email)) {
+      errorMessage += 'Invalid email format.\n';
+    }
+
+    return errorMessage;
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!email || !password) {
-      setError('Both fields are required.');
-      return;
+    // Validate form
+    let errorMessage = validateForm(event);
+    setErrorHolder(errorMessage);  // Save error message
+
+    if (errorMessage.length > 0) {
+      setOpen(true);  // Show dialog if there's an error
+      return;  // Stop further execution
     }
 
     setIsLoading(true);
     setError('');
-
     try {
       const response = await fetch('/api/login', {
         method: 'POST',
@@ -47,6 +66,10 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleCloseDialog = () => {
+    setOpen(false);  // Close the dialog
   };
 
   return (
@@ -114,6 +137,21 @@ export default function LoginPage() {
           </Typography>
         </Box>
       </Box>
+
+      {/* Dialog for error messages */}
+      <Dialog open={open} onClose={handleCloseDialog} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+        <DialogTitle id="alert-dialog-title">{"Error"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {errorHolder}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} autoFocus>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
