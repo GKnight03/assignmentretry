@@ -7,13 +7,13 @@ export async function POST(req) {
   const client = new MongoClient(uri);
 
   try {
-    // Get the data from the request
-    const { email, password, dob } = await req.json();  
+   
+    const { username, pass } = await req.json();  // Use 'username' and 'pass' 
 
-    // Check for required fields
-    if (!email || !password || !dob) {
+   
+    if (!username || !pass) {
       return NextResponse.json(
-        { message: 'Email, password, and date of birth are required.' },
+        { message: 'Username and password are required.' },
         { status: 400 }
       );
     }
@@ -24,23 +24,22 @@ export async function POST(req) {
     const loginCollection = db.collection('login');
 
     // Check if user already exists
-    const existingUser = await loginCollection.findOne({ username: email });
+    const existingUser = await loginCollection.findOne({ username: username });
     if (existingUser) {
       return NextResponse.json(
-        { message: 'User with this email already exists.' },
+        { message: 'User with this username already exists.' },
         { status: 400 }
       );
     }
 
-    // Hash the password using bcrypt
+    // Hash the password
     const saltRounds = 10;
-    const hashedPassword = bcrypt.hashSync(password, saltRounds);
+    const hashedPassword = bcrypt.hashSync(pass, saltRounds);
 
-    // New user object
+    // New user object (no dob)
     const newUser = {
-      username: email,
-      pass: hashedPassword,  // Store the hashed password
-      dob: dob,  // Include date of birth
+      username: username,  
+      pass: hashedPassword,  
       acc_type: 'customer',  // Default account type
     };
 
