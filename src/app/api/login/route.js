@@ -1,6 +1,7 @@
 import { MongoClient } from 'mongodb';
 import { getIronSession } from 'iron-session';
 import { cookies } from 'next/headers'; // For working with cookies
+import bcrypt from 'bcryptjs';  // Import bcryptjs for password comparison
 
 const secretPassword = "VIi8pH38vD8ZLgEZclSa7an3olx4pkh6pvBj9fGZf"; // Secret password for session encryption
 
@@ -19,33 +20,40 @@ export async function POST(req) {
     // Find the user by email (username in the DB)
     const user = await collection.findOne({ username: email });
 
-    if (user && user.pass === password) {
-      // Authentication successful, create a session
+    if (user) {
+      // Compare the provided password with the hashed password in the database
+      const hashResult = bcrypt.compareSync(password, user.pass);  // Compare the plain-text password with the hashed one
 
-      const session = await getIronSession(cookies(), {
-        password: secretPassword,
-        cookieName: 'app', // The name of your session cookie
-      });
+      console.log("Checking password: ", user.pass);
+      console.log("Hash Comparison Result: ", hashResult);
 
-      // Store user details in the session
-      session.user = {
-        email: user.username,
-        acc_type: user.acc_type, 
-      };
-      await session.save(); 
+      if (hashResult) {
+        // Authentication successful, create a session
+        const session = await getIronSession(cookies(), {
+          password: secretPassword,
+          cookieName: 'app', // The name of your session cookie
+        });
 
-      // Return user details and success response
-      return new Response(
-        JSON.stringify({ success: true, user: session.user }), 
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      );
-    } else {
-      // Invalid credentials
-      return new Response(
-        JSON.stringify({ success: false, message: 'Invalid email or password' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      );
+        // Store user details in the session
+        session.user = {
+          email: user.username,
+          acc_type: user.acc_type, 
+        };
+        await session.save(); 
+
+        // Return user details and success response
+        return new Response(
+          JSON.stringify({ success: true, user: session.user }), 
+          { status: 200, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
     }
+
+    // Invalid credentials
+    return new Response(
+      JSON.stringify({ success: false, message: 'Invalid email or password' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
     console.error('Error occurred:', error);
     return new Response(
