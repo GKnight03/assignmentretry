@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { Box, Button, TextField, Typography, CircularProgress } from '@mui/material';
+import { Box, Button, TextField, Typography, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
@@ -11,6 +11,8 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [open, setOpen] = useState(false); // for dialog visibility
+  const [errorHolder, setErrorHolder] = useState(''); // to hold error messages
   const router = useRouter(); // for navigation after registration
 
   const handleRegister = async () => {
@@ -48,6 +50,46 @@ export default function RegisterPage() {
     }
   };
 
+  // Function to validate form before submitting
+  const validateForm = (event) => {
+    let errorMessage = '';
+    const data = new FormData(event.currentTarget);
+
+    let email = data.get('email');
+    var validator = require('email-validator');
+    let emailCheck = validator.validate(email);
+
+    console.log("email status: " + emailCheck);
+
+    if (emailCheck === false) {
+      errorMessage += 'Incorrect email format. ';
+    }
+
+    return errorMessage;
+  };
+
+  // Handle form submission
+  const handleSubmit = (event) => {
+    console.log("handling submit");
+    event.preventDefault();
+
+    // Validate the form
+    let errorMessage = validateForm(event);
+    setErrorHolder(errorMessage);
+
+    // If there's an error, show the dialog
+    if (errorMessage.length > 0) {
+      setOpen(true);
+    } else {
+      // No errors, proceed with registration
+      handleRegister();
+    }
+  };
+
+  const handleClose = () => {
+    setOpen(false); // Close the dialog
+  };
+
   return (
     <Box sx={{ backgroundColor: '#FFF8E7', minHeight: '100vh', padding: 3 }}>
       <Box sx={{ maxWidth: 400, margin: 'auto', padding: 2 }}>
@@ -69,7 +111,7 @@ export default function RegisterPage() {
           </Typography>
         )}
 
-        <form onSubmit={(e) => e.preventDefault()} style={{ display: 'flex', flexDirection: 'column', marginTop: 3 }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', marginTop: 3 }}>
           <TextField
             label="Email"
             variant="outlined"
@@ -82,10 +124,10 @@ export default function RegisterPage() {
               borderRadius: '4px',
               '& .MuiOutlinedInput-root': {
                 '& fieldset': {
-                  borderColor: '#6B4226', 
+                  borderColor: '#6B4226',
                 },
                 '&:hover fieldset': {
-                  borderColor: '#FFB5E8', 
+                  borderColor: '#FFB5E8',
                 },
               },
             }}
@@ -116,14 +158,14 @@ export default function RegisterPage() {
           <Button
             variant="contained"
             fullWidth
-            onClick={handleRegister}
+            onClick={handleSubmit}
             disabled={isLoading}
             sx={{
-              backgroundColor: '#FFB5E8', 
+              backgroundColor: '#FFB5E8',
               color: '#6B4226',
               marginTop: 2,
               '&:hover': {
-                backgroundColor: '#d90166', 
+                backgroundColor: '#d90166',
               },
             }}
           >
@@ -139,7 +181,7 @@ export default function RegisterPage() {
               sx={{
                 color: '#FFB5E8',
                 textDecoration: 'underline',
-                '&:hover': { backgroundColor: 'transparent' }, 
+                '&:hover': { backgroundColor: 'transparent' },
               }}
             >
               Log In
@@ -147,6 +189,21 @@ export default function RegisterPage() {
           </Typography>
         </Box>
       </Box>
+
+      {/* Dialog for error messages */}
+      <Dialog open={open} onClose={handleClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+        <DialogTitle id="alert-dialog-title">{"ERROR"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {errorHolder}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} autoFocus>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
