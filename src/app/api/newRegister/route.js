@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { MongoClient } from 'mongodb';
-import bcrypt from 'bcryptjs';  // Import bcrypt
+import bcrypt from 'bcrypt';  // Import bcrypt
 
 export async function POST(req) {
   const uri = process.env.DB_ADDRESS;
