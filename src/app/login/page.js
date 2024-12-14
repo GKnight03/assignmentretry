@@ -10,16 +10,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [open, setOpen] = useState(false);  // For dialog open state
-  const [errorHolder, setErrorHolder] = useState('');  // For error message to show in the dialog
+  const [open, setOpen] = useState(false); // For dialog open state
+  const [errorHolder, setErrorHolder] = useState(''); // For error message to show in the dialog
   const router = useRouter();
 
-  const validateForm = (event) => {
+  const validateForm = () => {
     let errorMessage = '';
-    const data = new FormData(event.currentTarget);
-    let email = data.get('email');
 
-    // Validate email
+    // Validate email using the state value
     if (!validator.validate(email)) {
       errorMessage += 'Invalid email format.\n';
     }
@@ -30,13 +28,13 @@ export default function LoginPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Validate form
-    let errorMessage = validateForm(event);
-    setErrorHolder(errorMessage);  // Save error message
+    // Validate form using state values
+    let errorMessage = validateForm();
+    setErrorHolder(errorMessage);
 
     if (errorMessage.length > 0) {
-      setOpen(true);  // Show dialog if there's an error
-      return;  // Stop further execution
+      setOpen(true); // Show dialog if there's an error
+      return; // Stop further execution
     }
 
     setIsLoading(true);
@@ -45,7 +43,7 @@ export default function LoginPage() {
       const response = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password }), // Use state values
       });
 
       const data = await response.json();
@@ -69,7 +67,7 @@ export default function LoginPage() {
   };
 
   const handleCloseDialog = () => {
-    setOpen(false);  // Close the dialog
+    setOpen(false); // Close the dialog
   };
 
   return (
